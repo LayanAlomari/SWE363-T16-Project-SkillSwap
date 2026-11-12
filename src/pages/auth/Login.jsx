@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/auth/AuthLayout";
 import FormInput from "../../components/auth/FormInput";
+import Checkbox from "../../components/auth/Checkbox";
 import { findUserByEmail, setCurrentUser } from "../../data/mockUsers";
 
 export default function Login() {
@@ -56,15 +57,9 @@ export default function Login() {
             </Link>
           </div>
 
-          <label className="mt-8 flex w-fit cursor-pointer items-center gap-2 text-base font-bold text-black">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-5 w-5 accent-[#533222]"
-            />
-            Remember Me
-          </label>
+          <div className="mt-8">
+            <Checkbox label="Remember Me" checked={rememberMe} onChange={setRememberMe} />
+          </div>
 
           <p className="mt-20 text-lg font-bold text-black">
             Don't have an account?{" "}
