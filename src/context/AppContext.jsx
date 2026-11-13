@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { getUsers, saveUsers, addUser, getCurrentUser, setCurrentUser } from "../data/mockUsers";
 import { initialServices } from "../data/services";
 import { initialRequests } from "../data/requests";
@@ -43,7 +43,13 @@ try {
   // Storage unavailable: nothing saved to clear.
 }
 
-const ACTIVE_STATUSES = ["Pending", "Accepted"];
+// Finishing a session: the provider marks it done, then the seeker confirms it.
+// If the seeker doesn't answer within CONFIRM_HOURS, it is completed automatically.
+export const AWAITING = "Awaiting confirmation";
+export const CONFIRM_HOURS = 48;
+export const confirmDeadline = (r) => new Date(new Date(r.markedDoneAt).getTime() + CONFIRM_HOURS * 3600 * 1000);
+
+const ACTIVE_STATUSES = ["Pending", "Accepted", AWAITING];
 const today = () => new Date().toISOString().slice(0, 10);
 const ok = (message) => ({ ok: true, message });
 const fail = (error) => ({ ok: false, error });
@@ -171,6 +177,7 @@ export function AppProvider({ children }) {
   function acceptRequest(id) {
     const r = getRequest(id);
     if (!r || r.status !== "Pending") return fail("This request can no longer be accepted.");
+    if (r.providerId !== currentUserId) return fail("Only the member offering this service can accept it.");
     const seeker = getUser(r.seekerId);
     if (seeker.credits < r.credits) return fail(`${seeker.name} no longer has enough credits for this request.`);
     changeCredits(r.seekerId, -r.credits);
@@ -182,38 +189,81 @@ export function AppProvider({ children }) {
   function rejectRequest(id) {
     const r = getRequest(id);
     if (!r || r.status !== "Pending") return fail("This request can no longer be rejected.");
+    if (r.providerId !== currentUserId) return fail("Only the member offering this service can reject it.");
     updateRequest(id, { status: "Rejected" });
-    return ok("Request rejected.");
+    return ok(`Request from ${getUser(r.seekerId)?.name} rejected.`);
   }
 
   function cancelRequest(id) {
     const r = getRequest(id);
-    if (!r || !ACTIVE_STATUSES.includes(r.status)) return fail("This request can no longer be cancelled.");
+    if (r?.status === AWAITING) return fail("This session was marked as done. Confirm it, or tell us it didn't happen.");
+    if (!r || !["Pending", "Accepted"].includes(r.status)) return fail("This request can no longer be cancelled.");
+    if (r.seekerId !== currentUserId && currentUser?.role !== "admin") return fail("Only the member who sent this request can cancel it.");
     if (r.status === "Accepted") {
       changeCredits(r.seekerId, r.credits);
       addTransaction(r.seekerId, "refunded", r.credits, r.id, `Refund for cancelled ${getService(r.serviceId)?.title}`);
     }
     updateRequest(id, { status: "Cancelled" });
-    return ok("Request cancelled.");
+    return ok(r.status === "Accepted" ? `Request cancelled. ${r.credits} credit${r.credits > 1 ? "s were" : " was"} returned to your balance.` : "Request cancelled.");
   }
 
-  function completeRequest(id) {
+  // Step 1 (provider): the session took place
+  function markDone(id) {
     const r = getRequest(id);
-    // Only an Accepted request can be completed, so credits can never be transferred twice (NFR 15).
-    if (!r || r.status !== "Accepted") return fail("This request has already been completed or is not accepted yet.");
+    if (!r || r.status !== "Accepted") return fail("Only accepted sessions can be marked as done.");
+    if (r.providerId !== currentUserId) return fail("Only the member offering this service can mark it as done.");
+    updateRequest(id, { status: AWAITING, markedDoneAt: new Date().toISOString(), notYet: false });
+    return ok(`Marked as done. ${getUser(r.seekerId)?.name} will be asked to confirm.`);
+  }
+
+  // Step 2 (seeker): confirm it, and the held credits go to the provider
+  function confirmDone(id) {
+    const r = getRequest(id);
+    if (!r || r.status !== AWAITING) return fail("This session is not waiting for your confirmation.");
+    if (r.seekerId !== currentUserId) return fail("Only the member who requested this session can confirm it.");
+    finishRequest(r);
+    return ok(`Thanks for confirming! ${r.credits} credit${r.credits > 1 ? "s were" : " was"} sent to ${getUser(r.providerId)?.name}.`);
+  }
+
+  // Step 2 (seeker): the session didn't happen, so it goes back to Accepted and the credits stay held
+  function reportNotDone(id) {
+    const r = getRequest(id);
+    if (!r || r.status !== AWAITING) return fail("This session is not waiting for your confirmation.");
+    if (r.seekerId !== currentUserId) return fail("Only the member who requested this session can do this.");
+    updateRequest(id, { status: "Accepted", markedDoneAt: null, notYet: true }); // notYet: shown to the provider
+    return ok(`Okay, the session is back to Accepted and your credits are still held. ${getUser(r.providerId)?.name} will see that it hasn't happened yet.`);
+  }
+
+  // Moves the held credits to the provider. Used by confirmDone and by the automatic fallback.
+  // Only a request that is still waiting is finished, so credits can never be transferred twice (NFR 15).
+  const finished = useRef(new Set());
+  function finishRequest(r) {
+    if (finished.current.has(r.id)) return;
+    finished.current.add(r.id);
     const title = getService(r.serviceId)?.title;
-    updateRequest(id, { status: "Completed" });
+    updateRequest(r.id, { status: "Completed" });
     setTransactions((prev) =>
       prev.map((t) =>
-        t.requestId === id && t.type === "held"
+        t.requestId === r.id && t.type === "held"
           ? { ...t, type: "spent", description: `${title} with ${getUser(r.providerId)?.name}` }
           : t
       )
     );
     changeCredits(r.providerId, r.credits);
-    addTransaction(r.providerId, "earned", r.credits, id, `${title} for ${getUser(r.seekerId)?.name}`);
-    return ok(`Session completed! ${r.credits} credit${r.credits > 1 ? "s" : ""} transferred.`);
+    addTransaction(r.providerId, "earned", r.credits, r.id, `${title} for ${getUser(r.seekerId)?.name}`);
   }
+
+  // Fallback: complete sessions the seeker didn't confirm within CONFIRM_HOURS (checked every minute)
+  useEffect(() => {
+    function autoComplete() {
+      requests
+        .filter((r) => r.status === AWAITING && Date.now() >= confirmDeadline(r).getTime())
+        .forEach(finishRequest);
+    }
+    autoComplete();
+    const timer = setInterval(autoComplete, 60 * 1000);
+    return () => clearInterval(timer);
+  }, [requests]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------- Reviews ----------
   function addReview(requestId, stars, comment = "") {
@@ -285,7 +335,7 @@ export function AppProvider({ children }) {
     getUser, getService, getRequest,
     registerUser, login, logout, updateUser, updateProfile,
     addService, editService, deleteService,
-    sendRequest, acceptRequest, rejectRequest, cancelRequest, completeRequest,
+    sendRequest, acceptRequest, rejectRequest, cancelRequest, markDone, confirmDone, reportNotDone,
     addReview,
     setUserStatus, adjustBalance, addCategory, renameCategory, deleteCategory,
     resetDemoData,

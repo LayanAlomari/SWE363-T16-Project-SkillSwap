@@ -8,6 +8,7 @@ import Register from "./pages/auth/Register";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import UserDashboard from "./pages/user/UserDashboard";
 import MyServices from "./pages/user/MyServices";
+import Requests from "./pages/user/Requests";
 
 // Each team member adds the routes for their own pages below.
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
       {/* User pages (Layan) */}
       <Route path="/dashboard" element={<ProtectedRoute role="user"><UserDashboard /></ProtectedRoute>} />
       <Route path="/my-services" element={<ProtectedRoute role="user"><MyServices /></ProtectedRoute>} />
+      <Route path="/requests" element={<ProtectedRoute role="user"><Requests /></ProtectedRoute>} />
     </Routes>
   );
 }

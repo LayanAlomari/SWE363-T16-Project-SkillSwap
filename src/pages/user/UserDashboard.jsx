@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Clock, Lock, Briefcase, CheckCircle2, Bell, Star, ArrowRight, GraduationCap, BookOpen } from "lucide-react";
 import PageLayout from "../../components/common/PageLayout";
 import StatusBadge from "../../components/common/StatusBadge";
-import { useApp } from "../../context/AppContext";
+import { useApp, AWAITING } from "../../context/AppContext";
 
 const byNewest = (a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
 const formatAmount = (n) => `${n > 0 ? "+" : ""}${n} ${Math.abs(n) === 1 ? "credit" : "credits"}`;
@@ -72,7 +72,7 @@ export default function UserDashboard() {
   // ----- Numbers for the summary cards -----
   const myServices = services.filter((s) => s.providerId === me);
   const onHold = requests
-    .filter((r) => r.seekerId === me && r.status === "Accepted")
+    .filter((r) => r.seekerId === me && ["Accepted", AWAITING].includes(r.status))
     .reduce((sum, r) => sum + r.credits, 0);
   const completedCount = requests.filter(
     (r) => r.status === "Completed" && (r.providerId === me || r.seekerId === me)
@@ -81,7 +81,8 @@ export default function UserDashboard() {
   // ----- Lists -----
   const waitingForMe = requests.filter((r) => r.providerId === me && r.status === "Pending");
   const toRate = requests.filter((r) => r.seekerId === me && r.status === "Completed" && !r.rated);
-  const isCurrent = (r) => ["Pending", "Accepted"].includes(r.status);
+  const toConfirm = requests.filter((r) => r.seekerId === me && r.status === AWAITING);
+  const isCurrent = (r) => ["Pending", "Accepted", AWAITING].includes(r.status);
   const teaching = requests.filter((r) => r.providerId === me && isCurrent(r)).sort(byNewest);
   const booked = requests.filter((r) => r.seekerId === me && isCurrent(r)).sort(byNewest);
   const recentActivity = transactions.filter((t) => t.userId === me).sort(byNewest).slice(0, 4);
@@ -105,7 +106,7 @@ export default function UserDashboard() {
       </div>
 
       {/* Needs your attention */}
-      {(waitingForMe.length > 0 || toRate.length > 0) && (
+      {(waitingForMe.length > 0 || toRate.length > 0 || toConfirm.length > 0) && (
         <section aria-label="Needs your attention" className="mt-6 flex flex-col gap-3">
           {waitingForMe.length > 0 && (
             <Link
@@ -119,6 +120,19 @@ export default function UserDashboard() {
               <ArrowRight size={18} />
             </Link>
           )}
+          {toConfirm.map((r) => (
+            <Link
+              key={r.id}
+              to="/requests?tab=sent"
+              className="flex items-center gap-3 rounded-xl border border-brand-light bg-cream p-4 text-stone-800 hover:border-brand"
+            >
+              <CheckCircle2 size={20} className="shrink-0 text-brand" />
+              <span className="flex-1 font-semibold">
+                {getUser(r.providerId)?.name} marked "{getService(r.serviceId)?.title}" as done. Please confirm it.
+              </span>
+              <ArrowRight size={18} />
+            </Link>
+          ))}
           {toRate.map((r) => (
             <Link
               key={r.id}

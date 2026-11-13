@@ -3,6 +3,7 @@
 const STYLES = {
   Pending: "bg-yellow-100 text-yellow-800",
   Accepted: "bg-blue-100 text-blue-800",
+  "Awaiting confirmation": "bg-brand-light text-brand",
   Completed: "bg-green-100 text-green-800",
   Rejected: "bg-red-100 text-red-800",
   Cancelled: "bg-stone-200 text-stone-700",
