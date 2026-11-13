@@ -31,6 +31,18 @@ function usePersistentState(key, initialValue) {
 }
 
 const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories"];
+// When the demo data files change, increase this number so every browser
+// drops its old saved copy and loads the new data.
+const DATA_VERSION = "2";
+try {
+  if (localStorage.getItem("skillswap_data_version") !== DATA_VERSION) {
+    [...STORAGE_KEYS, "skillswap_users_v2"].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem("skillswap_data_version", DATA_VERSION);
+  }
+} catch {
+  // Storage unavailable: nothing saved to clear.
+}
+
 const ACTIVE_STATUSES = ["Pending", "Accepted"];
 const today = () => new Date().toISOString().slice(0, 10);
 const ok = (message) => ({ ok: true, message });
@@ -40,7 +52,7 @@ export function AppProvider({ children }) {
   // ---------- Data ----------
   const [users, setUsers] = useState(getUsers);
   const [currentUserId, setCurrentUserId] = useState(() => getCurrentUser()?.id ?? null);
-  const [services, setServices] = usePersistentState("skillswap_services", initialServices);
+  const [savedServices, setServices] = usePersistentState("skillswap_services", initialServices);
   const [requests, setRequests] = usePersistentState("skillswap_requests", initialRequests);
   const [transactions, setTransactions] = usePersistentState("skillswap_transactions", initialTransactions);
   const [reviews, setReviews] = usePersistentState("skillswap_reviews", initialReviews);
@@ -49,9 +61,20 @@ export function AppProvider({ children }) {
   // Users are saved with Razan's helper so login always sees the latest data (e.g. a suspension).
   useEffect(() => saveUsers(users), [users]);
 
+  // Each service's rating and number of reviews are calculated from the reviews,
+  // so they always match what is shown on profiles.
+  const allServices = savedServices.map((s) => {
+    const own = reviews.filter((r) => r.serviceId === s.id);
+    const average = own.length ? own.reduce((sum, r) => sum + r.stars, 0) / own.length : 0;
+    return { ...s, rating: Math.round(average * 10) / 10, reviewsCount: own.length };
+  });
+  // Deleted services are kept (so old requests and the wallet still show their name),
+  // but they are left out of every list.
+  const services = allServices.filter((s) => s.status !== "Deleted");
+
   const currentUser = users.find((u) => u.id === currentUserId) || null;
   const getUser = (id) => users.find((u) => u.id === id);
-  const getService = (id) => services.find((s) => s.id === id);
+  const getService = (id) => allServices.find((s) => s.id === id);
   const getRequest = (id) => requests.find((r) => r.id === id);
 
   // ---------- Small helpers used by the actions ----------
@@ -98,23 +121,34 @@ export function AppProvider({ children }) {
   }
 
   // ---------- My Services ----------
+  // data = { title, category, durationHours, description }. Price rule: 1 hour = 1 Time Credit.
   function addService(data) {
     if (!currentUser) return fail("Please log in first.");
     setServices((prev) => [
       ...prev,
-      { id: Date.now(), providerId: currentUser.id, rating: 0, reviewsCount: 0, status: "Active", ...data },
+      { ...data, id: Date.now(), providerId: currentUser.id, credits: data.durationHours, status: "Active" },
     ]);
-    return ok("Service added successfully.");
+    return ok(`"${data.title}" was added to your services.`);
   }
   function editService(id, data) {
-    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...data } : s)));
-    return ok("Service updated successfully.");
+    const service = getService(id);
+    if (!service || service.providerId !== currentUserId) return fail("You can only edit your own services.");
+    // Requests that were already sent keep the price they were sent with.
+    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...data, credits: data.durationHours } : s)));
+    return ok("Your changes were saved.");
   }
   function deleteService(id) {
+    const service = getService(id);
+    if (!service || service.providerId !== currentUserId) return fail("You can only delete your own services.");
     const hasActiveRequests = requests.some((r) => r.serviceId === id && ACTIVE_STATUSES.includes(r.status));
     if (hasActiveRequests) return fail("This service has active requests. Complete or reject them before deleting it.");
-    setServices((prev) => prev.filter((s) => s.id !== id));
-    return ok("Service deleted.");
+    const hasHistory = requests.some((r) => r.serviceId === id);
+    setServices((prev) =>
+      hasHistory
+        ? prev.map((s) => (s.id === id ? { ...s, status: "Deleted" } : s)) // keep it for old requests
+        : prev.filter((s) => s.id !== id)
+    );
+    return ok(`"${service.title}" was deleted.`);
   }
 
   // ---------- Requests (credit rule: held on accept, moved on complete, returned on cancel) ----------
@@ -192,14 +226,7 @@ export function AppProvider({ children }) {
       { id: Date.now(), requestId, serviceId: r.serviceId, reviewerId: r.seekerId, providerId: r.providerId, stars, comment: comment.trim(), date: today() },
       ...prev,
     ]);
-    updateRequest(requestId, { rated: true });
-    setServices((prev) =>
-      prev.map((s) =>
-        s.id === r.serviceId
-          ? { ...s, reviewsCount: s.reviewsCount + 1, rating: Math.round(((s.rating * s.reviewsCount + stars) / (s.reviewsCount + 1)) * 10) / 10 }
-          : s
-      )
-    );
+    updateRequest(requestId, { rated: true }); // the service's rating updates automatically
     return ok("Thank you! Your rating has been submitted.");
   }
 
@@ -207,7 +234,9 @@ export function AppProvider({ children }) {
   function setUserStatus(id, status) {
     updateUser(id, { status });
     setServices((prev) =>
-      prev.map((s) => (s.providerId === id ? { ...s, status: status === "Suspended" ? "Hidden" : "Active" } : s))
+      prev.map((s) =>
+        s.providerId === id && s.status !== "Deleted" ? { ...s, status: status === "Suspended" ? "Hidden" : "Active" } : s
+      )
     );
   }
   function adjustBalance(userId, amount, reason) {
