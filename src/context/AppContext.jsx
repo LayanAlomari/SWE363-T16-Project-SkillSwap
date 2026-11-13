@@ -104,8 +104,10 @@ export function AppProvider({ children }) {
   // ---------- Account ----------
   function registerUser(data) {
     const user = addUser(data); // Razan's function: saves the new user with the welcome credits
-    setUsers(getUsers());
-    return user;
+    const joined = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" }); // e.g. "Nov 2026"
+    setUsers(getUsers().map((u) => (u.id === user.id ? { ...u, joined } : u)));
+    addTransaction(user.id, "welcome", user.credits, null, "Welcome credits"); // so the Wallet shows where they came from
+    return { ...user, joined };
   }
   function login(user) {
     setUsers(getUsers()); // pick up anyone who registered since the app opened
@@ -121,7 +123,8 @@ export function AppProvider({ children }) {
   }
   function updateProfile(patch) {
     if (!currentUser) return fail("Please log in first.");
-    if (patch.name !== undefined && !patch.name.trim()) return fail("Full name is required.");
+    if (patch.name !== undefined && patch.name.trim().length < 3) return fail("Please enter your full name.");
+    if ((patch.headline?.length ?? 0) > 80 || (patch.bio?.length ?? 0) > 300) return fail("Your headline or bio is too long.");
     updateUser(currentUser.id, patch);
     return ok("Profile updated successfully.");
   }

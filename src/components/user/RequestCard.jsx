@@ -43,7 +43,6 @@ export default function RequestCard({ request: r, view, onAccept, onReject, onCa
 
   const canMessage = ["Pending", "Accepted", AWAITING].includes(r.status);
   const primary = "flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark";
-  const secondary = "flex items-center gap-2 rounded-lg border-2 border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-brand-light";
   const danger = "flex items-center gap-2 rounded-lg border-2 border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50";
 
   return (
@@ -85,26 +84,33 @@ export default function RequestCard({ request: r, view, onAccept, onReject, onCa
         </p>
       )}
 
-      {/* Actions depend on the tab and the status */}
-      <div className="mt-auto flex flex-wrap gap-2 pt-4">
-        {received && r.status === "Pending" && (
-          <>
-            <button type="button" onClick={() => onAccept(r)} className={primary}><Check size={16} /> Accept</button>
-            <button type="button" onClick={() => onReject(r)} className={danger}><X size={16} /> Reject</button>
-          </>
-        )}
-        {received && r.status === "Accepted" && (
-          <button type="button" onClick={() => onMarkDone(r)} className={primary}><CheckCheck size={16} /> Mark as done</button>
-        )}
-        {!received && ["Pending", "Accepted"].includes(r.status) && (
-          <button type="button" onClick={() => onCancel(r)} className={danger}><X size={16} /> Cancel request</button>
-        )}
-        {!received && r.status === "Completed" && !r.rated && (
-          <button type="button" onClick={() => onRate(r)} className={primary}><Star size={16} /> Rate session</button>
-        )}
+      {/* Bottom row: Message on the left, decision buttons on the right */}
+      <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
         {canMessage && (
-          <Link to={`/messages?with=${other?.id}`} className={secondary}><MessageCircle size={16} /> Message</Link>
+          <Link
+            to={`/messages?with=${other?.id}`}
+            className="flex items-center gap-2 rounded-lg border-2 border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-brand-light"
+          >
+            <MessageCircle size={16} /> Message
+          </Link>
         )}
+        <div className="ml-auto flex flex-wrap justify-end gap-2">
+          {received && r.status === "Pending" && (
+            <>
+              <button type="button" onClick={() => onAccept(r)} className={primary}><Check size={16} /> Accept</button>
+              <button type="button" onClick={() => onReject(r)} className={danger}><X size={16} /> Reject</button>
+            </>
+          )}
+          {received && r.status === "Accepted" && (
+            <button type="button" onClick={() => onMarkDone(r)} className={primary}><CheckCheck size={16} /> Mark as done</button>
+          )}
+          {!received && ["Pending", "Accepted"].includes(r.status) && (
+            <button type="button" onClick={() => onCancel(r)} className={danger}><X size={16} /> Cancel request</button>
+          )}
+          {!received && r.status === "Completed" && !r.rated && (
+            <button type="button" onClick={() => onRate(r)} className={primary}><Star size={16} /> Rate session</button>
+          )}
+        </div>
       </div>
     </li>
   );

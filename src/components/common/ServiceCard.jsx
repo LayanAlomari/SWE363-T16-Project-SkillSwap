@@ -16,7 +16,7 @@ export default function ServiceCard({ service }) {
           </span>
           <span className="flex items-center gap-1 text-xs text-brand">
             <Star size={14} fill="currentColor" />
-            {service.reviewsCount > 0 ? service.rating : "New"}
+            {service.reviewsCount > 0 ? service.rating.toFixed(1) : "New"}
           </span>
         </div>
         <h3 className="text-sm font-bold text-stone-900 sm:text-base">{service.title}</h3>
