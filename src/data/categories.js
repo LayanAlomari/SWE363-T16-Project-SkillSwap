@@ -8,6 +8,12 @@ export const initialCategories = [
   { id: 4, name: "Photography" },
   { id: 5, name: "Video Editing" },
   { id: 6, name: "Tutoring" },
+  { id: 7, name: "Web Design" },
+  { id: 8, name: "Music & Arts" },
+  { id: 9, name: "Writing & Speaking" },
+  { id: 10, name: "Business" },
+  { id: 11, name: "Lifestyle & Hobbies" },
+  { id: 12, name: "Other" },
 ];
 
 // Just the names, for dropdowns and filters: ["Programming", "Graphic Design", ...]

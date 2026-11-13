@@ -33,7 +33,7 @@ function usePersistentState(key, initialValue) {
 const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories"];
 // When the demo data files change, increase this number so every browser
 // drops its old saved copy and loads the new data.
-const DATA_VERSION = "2";
+const DATA_VERSION = "5";
 try {
   if (localStorage.getItem("skillswap_data_version") !== DATA_VERSION) {
     [...STORAGE_KEYS, "skillswap_users_v2"].forEach((k) => localStorage.removeItem(k));

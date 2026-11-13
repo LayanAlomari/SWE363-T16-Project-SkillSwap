@@ -37,7 +37,7 @@ export const initialServices = [
   {
     id: 4,
     title: "Web Design Basics",
-    category: "Programming",
+    category: "Web Design",
     providerId: 2, // Sara Ahmed
     durationHours: 2,
     credits: 2,

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import CategoryCombobox from "./CategoryCombobox";
+import SelectMenu from "./SelectMenu";
 
-const HOURS = [1, 2, 3, 4, 5, 6, 7, 8];
+const HOURS = [1, 2, 3, 4, 5, 6, 7, 8].map((h) => ({ value: h, label: `${h} ${h === 1 ? "hour" : "hours"}` }));
 const MAX_DESCRIPTION = 300;
 
 // Pop-up form to add a new service or edit one of yours.
@@ -16,6 +18,11 @@ export default function ServiceForm({ service, onSave, onCancel }) {
     description: service?.description ?? "",
   });
   const [errors, setErrors] = useState({});
+
+  // Categories A–Z, with "Other" always last
+  const categoryOptions = [...categories].sort(
+    (a, b) => (a.name === "Other") - (b.name === "Other") || a.name.localeCompare(b.name)
+  );
 
   // Close the form with the Escape key
   useEffect(() => {
@@ -35,7 +42,7 @@ export default function ServiceForm({ service, onSave, onCancel }) {
     const description = form.description.trim();
     if (title.length < 3) e.title = "Please enter a title of at least 3 characters.";
     else if (title.length > 60) e.title = "The title can be at most 60 characters.";
-    if (!form.category) e.category = "Please choose a category.";
+    if (!form.category) e.category = "Please choose a category from the list.";
     if (description.length < 20) e.description = "Please describe your service in at least 20 characters.";
     return e;
   }
@@ -106,34 +113,26 @@ export default function ServiceForm({ service, onSave, onCancel }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="category" className="mb-1 block text-sm font-semibold text-stone-800">Category</label>
-              <select
+              <CategoryCombobox
                 id="category"
+                options={categoryOptions}
                 value={form.category}
-                onChange={(e) => update("category", e.target.value)}
-                aria-invalid={!!errors.category}
-                aria-describedby={errors.category ? "category-error" : undefined}
-                className={`${inputStyle("category")} bg-white`}
-              >
-                <option value="">Choose a category</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
-                ))}
-              </select>
+                onChange={(name) => update("category", name)}
+                invalid={!!errors.category}
+                describedBy={errors.category ? "category-error" : undefined}
+              />
               {errorText("category")}
             </div>
 
             <div>
-              <label htmlFor="duration" className="mb-1 block text-sm font-semibold text-stone-800">Session length</label>
-              <select
+              <p id="duration-label" className="mb-1 block text-sm font-semibold text-stone-800">Session length</p>
+              <SelectMenu
                 id="duration"
-                value={form.durationHours}
-                onChange={(e) => update("durationHours", e.target.value)}
-                className={`${inputStyle("durationHours")} bg-white`}
-              >
-                {HOURS.map((h) => (
-                  <option key={h} value={h}>{h} {h === 1 ? "hour" : "hours"}</option>
-                ))}
-              </select>
+                labelId="duration-label"
+                options={HOURS}
+                value={Number(form.durationHours)}
+                onChange={(h) => update("durationHours", h)}
+              />
             </div>
           </div>
 
