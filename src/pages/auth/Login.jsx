@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/auth/AuthLayout";
 import FormInput from "../../components/auth/FormInput";
 import Checkbox from "../../components/auth/Checkbox";
-import { findUserByEmail, setCurrentUser } from "../../data/mockUsers";
+import { findUserByEmail } from "../../data/mockUsers";
+import { useApp } from "../../context/AppContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useApp();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -33,7 +35,7 @@ export default function Login() {
       return;
     }
 
-    setCurrentUser({ ...user, rememberMe });
+    login({ ...user, rememberMe });
     setSuccess("Login successful! Welcome back to Skill Swap.");
 
     // Admins go to the Admin Dashboard, regular users go to the User Dashboard

@@ -4,11 +4,13 @@ import { useState } from "react";
 import FormInput from "../../components/auth/FormInput";
 import Checkbox from "../../components/auth/Checkbox";
 import SuccessBox from "../../components/auth/SuccessBox";
-import { addUser, findUserByEmail, INITIAL_CREDITS } from "../../data/mockUsers";
+import { findUserByEmail, INITIAL_CREDITS } from "../../data/mockUsers";
+import { useApp } from "../../context/AppContext";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Register() {
+  const { registerUser } = useApp();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +48,7 @@ export default function Register() {
       return;
     }
 
-    addUser({ name: fullName, email, password });
+    registerUser({ name: fullName, email, password });
 setCreated(true);
 }
 

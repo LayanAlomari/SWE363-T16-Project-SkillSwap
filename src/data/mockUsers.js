@@ -83,6 +83,10 @@ function writeStorage(key, value) {
   }
 }
 
+export function saveUsers(users) {
+  writeStorage(STORAGE_KEY, users);
+}
+
 export function getUsers() {
   return readStorage(STORAGE_KEY, defaultUsers);
 }
