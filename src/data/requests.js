@@ -6,6 +6,9 @@
 //   Completed -> provider marked it done, held credits move to the provider
 //   Rejected  -> provider rejected (held credits, if any, go back to the seeker)
 //   Cancelled -> seeker cancelled before completion (held credits go back)
+//
+// Every "earned" / "spent" / "held" entry in transactions.js points to one of these
+// requests, and every review in reviews.js points to a Completed one.
 
 export const initialRequests = [
   {
@@ -16,7 +19,7 @@ export const initialRequests = [
     credits: 1,
     status: "Pending",
     date: "2026-11-01",
-    sessionTime: "Sun, Nov 16 · 6:00 PM",
+    sessionTime: "Mon, Nov 16 · 6:00 PM",
     message: "I need a logo for my study club.",
     rated: false,
   },
@@ -28,7 +31,7 @@ export const initialRequests = [
     credits: 1,
     status: "Accepted",
     date: "2026-11-02",
-    sessionTime: "Mon, Nov 17 · 7:00 PM",
+    sessionTime: "Tue, Nov 17 · 7:00 PM",
     message: "I want to practice for a job interview.",
     rated: false,
   },
@@ -40,7 +43,7 @@ export const initialRequests = [
     credits: 2,
     status: "Completed",
     date: "2026-11-03",
-    sessionTime: "Tue, Nov 4 · 5:00 PM",
+    sessionTime: "Wed, Nov 4 · 5:00 PM",
     message: "",
     rated: true,
   },
@@ -52,7 +55,7 @@ export const initialRequests = [
     credits: 2,
     status: "Rejected",
     date: "2026-11-04",
-    sessionTime: "Wed, Nov 5 · 4:00 PM",
+    sessionTime: "Thu, Nov 5 · 4:00 PM",
     message: "",
     rated: false,
   },
@@ -64,7 +67,7 @@ export const initialRequests = [
     credits: 2,
     status: "Completed",
     date: "2026-11-05",
-    sessionTime: "Thu, Nov 6 · 6:00 PM",
+    sessionTime: "Fri, Nov 6 · 6:00 PM",
     message: "",
     rated: false,
   },
@@ -76,8 +79,68 @@ export const initialRequests = [
     credits: 2,
     status: "Pending",
     date: "2026-11-10",
-    sessionTime: "Sat, Nov 22 · 4:00 PM",
+    sessionTime: "Sun, Nov 22 · 4:00 PM",
     message: "Can we focus on making a portfolio page?",
+    rated: false,
+  },
+  {
+    id: "REQ-007",
+    serviceId: 3, // English Conversation
+    seekerId: 4, // Ahmed Ali
+    providerId: 2, // Sara Ahmed
+    credits: 1,
+    status: "Completed",
+    date: "2026-10-10",
+    sessionTime: "Mon, Oct 12 · 7:00 PM",
+    message: "I'd like to practice everyday conversation.",
+    rated: true,
+  },
+  {
+    id: "REQ-008",
+    serviceId: 4, // Web Design Basics
+    seekerId: 3, // Najlaa Alanzi
+    providerId: 2, // Sara Ahmed
+    credits: 2,
+    status: "Completed",
+    date: "2026-10-18",
+    sessionTime: "Tue, Oct 20 · 5:00 PM",
+    message: "I want to build my first web page.",
+    rated: true,
+  },
+  {
+    id: "REQ-009",
+    serviceId: 7, // Math Tutoring
+    seekerId: 4, // Ahmed Ali
+    providerId: 7, // Fatimah Bahri
+    credits: 1,
+    status: "Completed",
+    date: "2026-10-13",
+    sessionTime: "Thu, Oct 15 · 4:00 PM",
+    message: "I need help with statistics.",
+    rated: true,
+  },
+  {
+    id: "REQ-010",
+    serviceId: 4, // Web Design Basics
+    seekerId: 4, // Ahmed Ali
+    providerId: 2, // Sara Ahmed
+    credits: 2,
+    status: "Completed",
+    date: "2026-10-23",
+    sessionTime: "Sun, Oct 25 · 4:00 PM",
+    message: "",
+    rated: false,
+  },
+  {
+    id: "REQ-011",
+    serviceId: 7, // Math Tutoring
+    seekerId: 4, // Ahmed Ali
+    providerId: 7, // Fatimah Bahri
+    credits: 1,
+    status: "Completed",
+    date: "2026-10-26",
+    sessionTime: "Wed, Oct 28 · 4:00 PM",
+    message: "",
     rated: false,
   },
 ];

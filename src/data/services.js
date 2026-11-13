@@ -1,6 +1,7 @@
 // Shared services offered by members.
 // Price rule: 1 hour = 1 Time Credit, so credits = durationHours * creditsPerHour.
 // providerId points to a user id in mockUsers.js.
+// rating and reviewsCount are not stored here: AppContext calculates them from reviews.js.
 
 export const initialServices = [
   {
@@ -10,8 +11,6 @@ export const initialServices = [
     providerId: 5, // Mohammed Saad
     durationHours: 2,
     credits: 2,
-    rating: 4.7,
-    reviewsCount: 3,
     description: "Learn the basics of Python programming: variables, loops and functions, with practice examples.",
     status: "Active",
   },
@@ -22,8 +21,6 @@ export const initialServices = [
     providerId: 6, // Nora Khalid
     durationHours: 1,
     credits: 1,
-    rating: 4.5,
-    reviewsCount: 2,
     description: "Create a simple and professional logo for your project or club.",
     status: "Active",
   },
@@ -34,8 +31,6 @@ export const initialServices = [
     providerId: 2, // Sara Ahmed
     durationHours: 1,
     credits: 1,
-    rating: 4.8,
-    reviewsCount: 4,
     description: "Practice English speaking and conversation skills in a relaxed session.",
     status: "Active",
   },
@@ -46,8 +41,6 @@ export const initialServices = [
     providerId: 2, // Sara Ahmed
     durationHours: 2,
     credits: 2,
-    rating: 4.6,
-    reviewsCount: 1,
     description: "Build your first web page with HTML and CSS, step by step.",
     status: "Active",
   },
@@ -58,8 +51,6 @@ export const initialServices = [
     providerId: 4, // Ahmed Ali
     durationHours: 2,
     credits: 2,
-    rating: 4.9,
-    reviewsCount: 2,
     description: "Learn lighting and posing basics for great portrait photos with any camera.",
     status: "Active",
   },
@@ -70,8 +61,6 @@ export const initialServices = [
     providerId: 3, // Najlaa Alanzi (suspended, so this service is hidden)
     durationHours: 1,
     credits: 1,
-    rating: 4.2,
-    reviewsCount: 1,
     description: "Edit short videos for social media: cuts, music and captions.",
     status: "Hidden",
   },
@@ -82,8 +71,6 @@ export const initialServices = [
     providerId: 7, // Fatimah Bahri
     durationHours: 1,
     credits: 1,
-    rating: 4.4,
-    reviewsCount: 1,
     description: "Help with calculus and statistics homework and exam preparation.",
     status: "Active",
   },

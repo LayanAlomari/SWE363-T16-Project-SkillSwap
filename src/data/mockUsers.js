@@ -50,7 +50,7 @@ const defaultUsers = [
   },
   {
     id: 6, name: "Nora Khalid", email: "nora@email.com", password: "nora123",
-    role: "user", status: "Active", credits: 2, joined: "Nov 2026",
+    role: "user", status: "Active", credits: 2, joined: "Oct 2026",
     headline: "Graphic designer · Riyadh",
     bio: "New to Skill Swap. I design logos and social media posts.",
     skills: ["Graphic Design"], wantsToLearn: ["Photography"], languages: ["Arabic", "English"],

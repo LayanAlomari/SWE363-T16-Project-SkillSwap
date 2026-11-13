@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Shared brand colors. Use them as bg-brand, text-brand, border-brand, bg-cream, etc.
+   Change a color here once and every page updates. */
+@theme {
+  --color-brand: #633725;        /* main brown (from Figma) */
+  --color-brand-dark: #4a2819;   /* hover */
+  --color-brand-light: #f3e2d8;  /* light backgrounds, selected items */
+  --color-cream: #fbf5f1;        /* cards and headers */
+}
+
 body {
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   background-color: #ffffff;
