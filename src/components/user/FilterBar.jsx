@@ -1,13 +1,8 @@
+import { useApp } from "../../context/AppContext";
+
 function FilterBar({ selectedCategory, setSelectedCategory }) {
-  const categories = [
-    "All Categories",
-    "Languages",
-    "Graphic Design",
-    "Programming",
-    "Video Editing",
-    "Tutoring",
-    "Photography",
-  ];
+  const { categories: shared } = useApp();
+  const categories = ["All Categories", ...shared.map((c) => c.name)];
 
   return (
     <div className="flex flex-wrap gap-2">

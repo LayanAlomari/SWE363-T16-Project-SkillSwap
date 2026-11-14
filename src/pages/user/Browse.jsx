@@ -1,32 +1,38 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import SearchBar from "../../components/user/SearchBar";
 import FilterBar from "../../components/user/FilterBar";
 import ServiceCard from "../../components/common/ServiceCard";
-import { mockServices } from "../../data/mockUserData";
+import { useApp } from "../../context/AppContext";
 
 function Browse() {
+  const { services, getUser } = useApp();
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  // A category link from the Home page opens Browse already filtered
   const [selectedCategory, setSelectedCategory] =
-    useState("All Categories");
+    useState(searchParams.get("category") || "All Categories");
 
   const filteredServices = useMemo(() => {
-    return mockServices.filter((service) => {
-      const search = searchTerm.toLowerCase();
+    return services.filter((service) => {
+      const search = searchTerm.trim().toLowerCase();
+      const providerName = getUser(service.providerId)?.name ?? "";
 
       const matchesSearch =
         service.title.toLowerCase().includes(search) ||
+        service.description.toLowerCase().includes(search) ||
         service.category.toLowerCase().includes(search) ||
-        service.provider.toLowerCase().includes(search);
+        providerName.toLowerCase().includes(search);
 
       const matchesCategory =
         selectedCategory === "All Categories" ||
         service.category === selectedCategory;
 
-      return matchesSearch && matchesCategory;
+      return service.status === "Active" && matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [services, getUser, searchTerm, selectedCategory]);
 
   const clearFilters = () => {
     setSearchTerm("");

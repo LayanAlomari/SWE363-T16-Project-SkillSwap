@@ -2,9 +2,14 @@ import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import CategoryCard from "../../components/user/CategoryCard";
 import ServiceCard from "../../components/common/ServiceCard";
-import { mockCategories, mockServices } from "../../data/mockUserData";
+import { useNavigate } from "react-router-dom";
+import { useApp } from "../../context/AppContext";
 
 function Home() {
+  const { services, categories } = useApp();
+  const navigate = useNavigate();
+  const featured = services.filter((s) => s.status === "Active").slice(0, 3);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#fffaf7]">
       <Navbar />
@@ -61,14 +66,12 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {mockCategories.map((category) => (
+            {categories.map((category) => (
               <CategoryCard
-                key={category}
-                title={category}
+                key={category.id}
+                title={category.name}
                 icon="✦"
-                onClick={() => {
-                  window.location.href = `/browse?category=${category}`;
-                }}
+                onClick={() => navigate(`/browse?category=${encodeURIComponent(category.name)}`)}
               />
             ))}
           </div>
@@ -90,7 +93,7 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {mockServices.slice(0, 3).map((service) => (
+            {featured.map((service) => (
               <ServiceCard
                 key={service.id}
                 service={service}
