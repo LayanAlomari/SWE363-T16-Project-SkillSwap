@@ -55,7 +55,7 @@ export default function Navbar() {
   function handleLogout() {
     closeMenus();
     logout();
-    navigate("/login");
+    navigate("/");
   }
 
   const linkStyle = ({ isActive }) =>

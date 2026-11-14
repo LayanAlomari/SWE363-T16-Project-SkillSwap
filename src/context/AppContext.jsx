@@ -169,22 +169,64 @@ export function AppProvider({ children }) {
   }
 
   // ---------- Requests (credit rule: held on accept, moved on complete, returned on cancel) ----------
-  function sendRequest(serviceId, sessionTime, message = "") {
-    const service = getService(serviceId);
-    if (!currentUser) return fail("Please log in or create an account to request this service.");
-    if (!service) return fail("Service not found.");
-    if (service.providerId === currentUser.id) return fail("You cannot request your own service.");
-    if (currentUser.credits < service.credits) return { ...fail("Not enough Time Credits."), notEnoughCredits: true };
-    setRequests((prev) => [
-      ...prev,
-      {
-        id: nextRequestId(), serviceId, seekerId: currentUser.id, providerId: service.providerId,
-        credits: service.credits, status: "Pending", date: today(), sessionTime, message, rated: false,
-      },
-    ]);
-    notify(service.providerId, "New service request", `${currentUser.name} requested ${service.title}.`, "/requests");
-    return ok("Request sent! The provider will be notified.");
+function sendRequest(
+  serviceId,
+  sessionTime,
+  message = "",
+  sessionDetails = {}
+) {
+  const service = getService(serviceId);
+
+  if (!currentUser) {
+    return fail(
+      "Please log in or create an account to request this service."
+    );
   }
+
+  if (!service) {
+    return fail("Service not found.");
+  }
+
+  if (service.providerId === currentUser.id) {
+    return fail("You cannot request your own service.");
+  }
+
+  if (currentUser.credits < service.credits) {
+    return {
+      ...fail("Not enough Time Credits."),
+      notEnoughCredits: true,
+    };
+  }
+
+  setRequests((prev) => [
+    ...prev,
+    {
+      id: nextRequestId(),
+      serviceId,
+      seekerId: currentUser.id,
+      providerId: service.providerId,
+      credits: service.credits,
+      status: "Pending",
+      date: today(),
+      sessionTime,
+      message,
+      rated: false,
+
+      sessionType: sessionDetails.sessionType || "Online",
+      meetingLink: sessionDetails.meetingLink || "",
+      location: sessionDetails.location || "",
+    },
+  ]);
+
+  notify(
+    service.providerId,
+    "New service request",
+    `${currentUser.name} requested ${service.title}.`,
+    "/requests"
+  );
+
+  return ok("Request sent! The provider will be notified.");
+}
 
   function acceptRequest(id) {
     const r = getRequest(id);

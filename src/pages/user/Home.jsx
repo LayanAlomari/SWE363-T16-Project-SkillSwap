@@ -1,7 +1,7 @@
-import Navbar from "../../components/user/Navbar";
-import Footer from "../../components/user/Footer";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 import CategoryCard from "../../components/user/CategoryCard";
-import ServiceCard from "../../components/user/ServiceCard";
+import ServiceCard from "../../components/common/ServiceCard";
 import { mockCategories, mockServices } from "../../data/mockUserData";
 
 function Home() {
@@ -27,7 +27,7 @@ function Home() {
 
           <a
             href="/browse"
-            className="mt-7 inline-block rounded-full bg-[#63351f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4e2818]"
+            className="mt-7 inline-block rounded-full bg-[#63351f] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#4e2818]"
           >
             Explore Skills
           </a>
@@ -91,7 +91,10 @@ function Home() {
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {mockServices.slice(0, 3).map((service) => (
-              <ServiceCard key={service.id} {...service} />
+              <ServiceCard
+                key={service.id}
+                service={service}
+              />
             ))}
           </div>
         </section>
