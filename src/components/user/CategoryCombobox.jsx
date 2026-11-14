@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
 // Category field you can type in: the list filters as you type, then you pick one.
-// options = [{ name }] (the categories from AppContext).
+// options = [{ name }]
 // Keyboard: ↓ / ↑ to move, Enter to choose, Escape to close the list.
 export default function CategoryCombobox({ id, options, value, onChange, invalid, describedBy }) {
   const [query, setQuery] = useState(value); // the text in the box

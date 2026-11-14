@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 
-// Pop-up that asks the user to confirm an action (e.g. "Delete this service?").
-// Shared by the user pages and the admin pages.
+// Pop-up that asks the user to confirm an action.
 export default function ConfirmModal({
   title = "Confirm action",
   message,

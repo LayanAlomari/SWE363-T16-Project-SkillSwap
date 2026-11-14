@@ -1,5 +1,4 @@
-// Shared skill categories (used by Browse, the service form and Admin > Manage Categories).
-// The number of services in each category is counted from services.js, not stored here.
+// Skill categories.
 
 export const initialCategories = [
   { id: 1, name: "Programming" },
@@ -16,5 +15,5 @@ export const initialCategories = [
   { id: 12, name: "Other" },
 ];
 
-// Just the names, for dropdowns and filters: ["Programming", "Graphic Design", ...]
+// Category names only.
 export const categoryNames = initialCategories.map((c) => c.name);

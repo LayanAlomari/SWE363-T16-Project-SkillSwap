@@ -29,7 +29,7 @@ function parseRange(text) {
   const [, start, startPeriod, end, endPeriod] = match;
   return { from: toMinutes(start, startPeriod || endPeriod), to: toMinutes(end, endPeriod) };
 }
-// { from: 1080, to: 1260 } -> "6:00 – 9:00 PM" (same style as the existing data)
+// { from: 1080, to: 1260 } -> "6:00 – 9:00 PM"
 function formatRange({ from, to }) {
   const [a, b] = [toLabel(from), toLabel(to)];
   return a.slice(-2) === b.slice(-2) ? `${a.slice(0, -3)} – ${b}` : `${a} – ${b}`;

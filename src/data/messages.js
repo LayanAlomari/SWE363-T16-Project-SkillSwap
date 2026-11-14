@@ -1,4 +1,4 @@
-// Shared chat messages between two members.
+// Chat messages between two members.
 // A conversation is all the messages between the same two users (fromId / toId).
 // read = whether the receiver (toId) has opened it. sentAt = date and time it was sent.
 

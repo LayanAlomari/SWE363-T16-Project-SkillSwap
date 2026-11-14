@@ -1,6 +1,5 @@
-// Shared notifications. Each one belongs to one user (userId).
-// New ones are created automatically by the actions in AppContext
-// (new request, accepted, rejected, cancelled, marked as done, confirmed, new review, balance change).
+// Notifications. Each one belongs to one user (userId).
+// New ones are created by the request actions in AppContext.
 // link = the page that opens when the notification is clicked.
 
 export const initialNotifications = [

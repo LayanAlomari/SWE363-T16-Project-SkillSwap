@@ -8,11 +8,10 @@ import { initialCategories } from "../data/categories";
 import { initialNotifications } from "../data/notifications";
 import { initialMessages } from "../data/messages";
 
-// One shared place for the app's data. Every page reads from here and changes data
-// only through the actions below, so all pages stay in sync.
+// Shared app data and the actions that change it.
 const AppContext = createContext(null);
 
-// Saves a piece of data in the browser so changes survive a page refresh.
+// State that is also saved in localStorage.
 function usePersistentState(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
@@ -26,15 +25,14 @@ function usePersistentState(key, initialValue) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      // Storage unavailable (e.g. private mode): the app still works for this visit.
+      // localStorage not available: keep the data in memory only.
     }
   }, [key, value]);
   return [value, setValue];
 }
 
 const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories", "skillswap_notifications", "skillswap_messages"];
-// When the demo data files change, increase this number so every browser
-// drops its old saved copy and loads the new data.
+// Version of the demo data. When it changes, old saved data is cleared.
 const DATA_VERSION = "7";
 try {
   if (localStorage.getItem("skillswap_data_version") !== DATA_VERSION) {
@@ -42,7 +40,7 @@ try {
     localStorage.setItem("skillswap_data_version", DATA_VERSION);
   }
 } catch {
-  // Storage unavailable: nothing saved to clear.
+  // localStorage not available.
 }
 
 // Finishing a session: the provider marks it done, then the seeker confirms it.
@@ -52,7 +50,7 @@ export const CONFIRM_HOURS = 48;
 export const confirmDeadline = (r) => new Date(new Date(r.markedDoneAt).getTime() + CONFIRM_HOURS * 3600 * 1000);
 
 const ACTIVE_STATUSES = ["Pending", "Accepted", AWAITING];
-// Today's date in the user's own time zone, as "YYYY-MM-DD" (toISOString would use UTC and can be a day off)
+// Today's local date as "YYYY-MM-DD".
 const today = () => new Date().toLocaleDateString("en-CA");
 const ok = (message) => ({ ok: true, message });
 const fail = (error) => ({ ok: false, error });
@@ -69,18 +67,16 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = usePersistentState("skillswap_notifications", initialNotifications);
   const [messages, setMessages] = usePersistentState("skillswap_messages", initialMessages);
 
-  // Users are saved with Razan's helper so login always sees the latest data (e.g. a suspension).
+  // Save users to localStorage whenever they change.
   useEffect(() => saveUsers(users), [users]);
 
-  // Each service's rating and number of reviews are calculated from the reviews,
-  // so they always match what is shown on profiles.
+  // Each service's rating and review count, calculated from the reviews.
   const allServices = savedServices.map((s) => {
     const own = reviews.filter((r) => r.serviceId === s.id);
     const average = own.length ? own.reduce((sum, r) => sum + r.stars, 0) / own.length : 0;
     return { ...s, rating: Math.round(average * 10) / 10, reviewsCount: own.length };
   });
-  // Deleted services are kept (so old requests and the wallet still show their name),
-  // but they are left out of every list.
+  // Deleted services are kept for old requests but hidden from all lists.
   const services = allServices.filter((s) => s.status !== "Deleted");
 
   const currentUser = users.find((u) => u.id === currentUserId) || null;
@@ -88,11 +84,11 @@ export function AppProvider({ children }) {
   const getService = (id) => allServices.find((s) => s.id === id);
   const getRequest = (id) => requests.find((r) => r.id === id);
 
-  // ---------- Small helpers used by the actions ----------
+  // ---------- Helpers ----------
   function changeCredits(userId, amount) {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, credits: u.credits + amount } : u)));
   }
-  // Sends a notification to one user (shown on their Notifications page and the bell in the navbar)
+  // Adds a notification for one user.
   function notify(userId, title, description, link) {
     setNotifications((prev) => [
       { id: Date.now() + Math.random(), userId, title, description, link, read: false, date: today() },
@@ -115,14 +111,14 @@ export function AppProvider({ children }) {
 
   // ---------- Account ----------
   function registerUser(data) {
-    const user = addUser(data); // Razan's function: saves the new user with the welcome credits
+    const user = addUser(data); // saves the user with the welcome credits
     const joined = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" }); // e.g. "Nov 2026"
     setUsers(getUsers().map((u) => (u.id === user.id ? { ...u, joined } : u)));
-    addTransaction(user.id, "welcome", user.credits, null, "Welcome credits"); // so the Wallet shows where they came from
+    addTransaction(user.id, "welcome", user.credits, null, "Welcome credits"); // first entry in the credit history
     return { ...user, joined };
   }
   function login(user) {
-    setUsers(getUsers()); // pick up anyone who registered since the app opened
+    setUsers(getUsers()); // reload users from localStorage
     setCurrentUser(user);
     setCurrentUserId(user.id);
   }
@@ -255,8 +251,8 @@ export function AppProvider({ children }) {
     return ok(`Okay, the session is back to Accepted and your credits are still held. ${getUser(r.providerId)?.name} will see that it hasn't happened yet.`);
   }
 
-  // Moves the held credits to the provider. Used by confirmDone and by the automatic fallback.
-  // Only a request that is still waiting is finished, so credits can never be transferred twice (NFR 15).
+  // Moves the held credits to the provider (on confirm or automatically).
+  // A request can only be finished once, so credits are never transferred twice.
   const finished = useRef(new Set());
   function finishRequest(r) {
     if (finished.current.has(r.id)) return;
@@ -303,7 +299,7 @@ export function AppProvider({ children }) {
     return ok("Thank you! Your rating has been submitted.");
   }
 
-  // ---------- Admin actions (for Layan2's pages) ----------
+  // ---------- Admin actions ----------
   function setUserStatus(id, status) {
     updateUser(id, { status });
     setServices((prev) =>
@@ -344,7 +340,7 @@ export function AppProvider({ children }) {
     return ok("Category deleted.");
   }
 
-  // ---------- Notifications (for the bell and the Notifications page) ----------
+  // ---------- Notifications ----------
   const myNotifications = notifications
     .filter((n) => n.userId === currentUserId)
     .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); // newest first
@@ -403,7 +399,7 @@ export function AppProvider({ children }) {
     setMessages((prev) => prev.map((m) => (m.fromId === otherId && m.toId === currentUserId ? { ...m, read: true } : m)));
   }
 
-  // ---------- Testing helper: put all sample data back ----------
+  // ---------- Reset to the demo data ----------
   function resetDemoData() {
     STORAGE_KEYS.forEach((k) => localStorage.removeItem(k));
     setServices(initialServices);

@@ -1,6 +1,6 @@
-// Shared reviews. A seeker can review a request once it is Completed.
+// Reviews. A seeker can review a request once it is Completed.
 // Shown on the provider's profile and on the service.
-// A service's rating and number of reviews are calculated from this list (in AppContext).
+// Service ratings are calculated from this list.
 
 export const initialReviews = [
   { id: 1, requestId: "REQ-003", serviceId: 5, reviewerId: 2, providerId: 4, stars: 5, comment: "Ahmed explained lighting really clearly. My photos look so much better now.", date: "2026-11-04" },

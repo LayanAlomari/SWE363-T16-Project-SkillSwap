@@ -7,8 +7,8 @@ import SelectMenu from "./SelectMenu";
 const HOURS = [1, 2, 3, 4, 5, 6, 7, 8].map((h) => ({ value: h, label: `${h} ${h === 1 ? "hour" : "hours"}` }));
 const MAX_DESCRIPTION = 300;
 
-// Pop-up form to add a new service or edit one of yours.
-// Price rule: 1 hour = 1 Time Credit, so the credits are calculated from the duration.
+// Pop-up form to add or edit a service.
+// Credits are calculated from the duration (1 hour = 1 Time Credit).
 export default function ServiceForm({ service, onSave, onCancel }) {
   const { categories } = useApp();
   const [form, setForm] = useState({

@@ -1,7 +1,6 @@
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
 
-// Success or error message box (e.g. "Service added successfully.", "Not enough Time Credits.").
-// Usage: <Alert type="error" onClose={() => setError("")}>{error}</Alert>
+// Success or error message box.
 export default function Alert({ type = "success", children, onClose }) {
   if (!children) return null;
   const isError = type === "error";

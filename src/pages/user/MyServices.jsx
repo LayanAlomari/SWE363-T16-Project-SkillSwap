@@ -15,7 +15,7 @@ export default function MyServices() {
   const [toDelete, setToDelete] = useState(null); // service waiting for delete confirmation
   const [message, setMessage] = useState(null); // { type: "success" | "error", text }
 
-  // The dashboard's "+ Offer a service" button opens /my-services?new=1
+  // /my-services?new=1 opens the Add form
   useEffect(() => {
     if (searchParams.get("new")) {
       setEditing("new");

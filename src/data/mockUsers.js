@@ -1,4 +1,4 @@
-// Mock users for the front-end prototype (no backend in this milestone).
+// Mock users (there is no backend yet).
 // New accounts are saved in the browser's localStorage so they survive a page refresh.
 
 const STORAGE_KEY = "skillswap_users_v2";
@@ -6,7 +6,7 @@ const CURRENT_USER_KEY = "skillswap_current_user";
 
 export const INITIAL_CREDITS = 2;
 
-// Shared users for the whole app (login, profiles, admin pages).
+// Demo users.
 // Profile fields: bio, skills, wantsToLearn, availability (null = unavailable that day).
 const noAvailability = { Sunday: null, Monday: null, Tuesday: null, Wednesday: null, Thursday: null, Friday: null, Saturday: null };
 
@@ -79,7 +79,7 @@ function writeStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Storage can be unavailable (e.g. private mode); the app still works for this session.
+    // localStorage not available.
   }
 }
 

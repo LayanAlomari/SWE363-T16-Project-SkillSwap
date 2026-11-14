@@ -1,5 +1,4 @@
 // Colored label for request and account statuses.
-// Same colors everywhere: Requests page, Dashboard, Admin > Manage Requests.
 const STYLES = {
   Pending: "bg-yellow-100 text-yellow-800",
   Accepted: "bg-blue-100 text-blue-800",

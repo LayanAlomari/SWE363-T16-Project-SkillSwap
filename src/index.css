@@ -1,16 +1,14 @@
 @import "tailwindcss";
 
-/* Shared brand colors. Use them as bg-brand, text-brand, border-brand, bg-cream, etc.
-   Change a color here once and every page updates. */
+/* Brand colors */
 @theme {
-  --color-brand: #633725;        /* main brown (from Figma) */
+  --color-brand: #633725;        /* main brown */
   --color-brand-dark: #4a2819;   /* hover */
   --color-brand-light: #f3e2d8;  /* light backgrounds, selected items */
   --color-cream: #fbf5f1;        /* cards and headers */
 }
 
-/* Always keep space for the scrollbar, so pages don't shift sideways
-   when moving between a short page (no scrollbar) and a long one */
+/* Keep space for the scrollbar so pages don't shift sideways */
 html {
   scrollbar-gutter: stable;
 }

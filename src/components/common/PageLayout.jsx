@@ -1,7 +1,7 @@
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-// Page frame for user pages: Navbar on top, page content in the middle, Footer at the bottom.
+// Navbar, page content and Footer.
 export default function PageLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col bg-white">

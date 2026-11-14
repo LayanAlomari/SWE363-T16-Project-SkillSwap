@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
-// Layan2's Messages page, now using the shared messages from AppContext.
+// Chat between two members.
 // - Each member only sees their own conversations.
 // - /messages?with=4 opens the chat with user 4 (used by the Message buttons), even if it's a new chat.
 // - On phones the list and the chat are shown one at a time.
@@ -56,13 +56,14 @@ export default function Messages() {
 
   return (
     <>
-      <h1 className="mb-6 text-3xl font-bold">Messages</h1>
-      <div className="grid min-h-[480px] grid-cols-1 overflow-hidden rounded-xl border bg-white md:grid-cols-[270px_minmax(0,1fr)]">
+      <h1 className="text-3xl font-bold text-stone-900">Messages</h1>
+      <p className="mb-6 mt-1 text-stone-600">Chat with members to arrange your sessions.</p>
+      <div className="grid min-h-[480px] grid-cols-1 overflow-hidden rounded-xl border border-brand-light bg-white md:grid-cols-[270px_minmax(0,1fr)]">
         {/* Conversation list (hidden on phones while a chat is open) */}
-        <aside className={`min-w-0 border-b md:border-b-0 md:border-r ${selected ? "hidden md:block" : ""}`}>
+        <aside className={`min-w-0 border-b border-brand-light md:border-b-0 md:border-r ${selected ? "hidden md:block" : ""}`}>
           <input
             aria-label="Search conversations"
-            className="m-3 w-[calc(100%-24px)] rounded-lg border p-3"
+            className="m-3 w-[calc(100%-24px)] rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="Search conversations"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -71,10 +72,10 @@ export default function Messages() {
             <button
               key={c.otherId}
               onClick={() => open(c.otherId)}
-              className={`block w-full border-b p-4 text-left ${selected === c.otherId ? "bg-[#f3e2d8]" : "hover:bg-stone-50"}`}
+              className={`block w-full border-b border-brand-light p-4 text-left ${selected === c.otherId ? "bg-brand-light" : "hover:bg-cream"}`}
             >
               <span className="flex items-center justify-between gap-2">
-                <strong>{c.user?.name}</strong>
+                <strong className="text-stone-900">{c.user?.name}</strong>
                 {c.unread > 0 && (
                   <span className="rounded-full bg-red-600 px-2 text-xs font-bold text-white" aria-label={`${c.unread} unread`}>
                     {c.unread}
@@ -95,15 +96,15 @@ export default function Messages() {
 
         {/* Chat */}
         <section className={`flex min-h-[400px] min-w-0 flex-col ${selected ? "" : "hidden md:flex"}`}>
-          <div className="flex items-center gap-2 border-b p-4">
+          <div className="flex items-center gap-2 border-b border-brand-light p-4">
             {selected && (
               <button type="button" onClick={() => setSearchParams({})} aria-label="Back to conversations" className="rounded-lg p-1 md:hidden">
                 <ArrowLeft size={20} />
               </button>
             )}
-            <h2 className="font-bold">
+            <h2 className="font-bold text-stone-900">
               {other ? (
-                <Link to={`/users/${other.id}`} className="hover:text-[#633725] hover:underline">{other.name}</Link>
+                <Link to={`/users/${other.id}`} className="hover:text-brand hover:underline">{other.name}</Link>
               ) : (
                 "Choose a conversation"
               )}
@@ -118,7 +119,7 @@ export default function Messages() {
               const mine = m.fromId === currentUser.id;
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-xl p-3 ${mine ? "bg-[#633725] text-white" : "bg-[#f3e2d8]"}`}>
+                  <div className={`max-w-[80%] rounded-xl px-4 py-2 ${mine ? "bg-brand text-white" : "bg-brand-light text-stone-900"}`}>
                     <p className="whitespace-pre-wrap break-words">{m.text}</p>
                     <p className={`mt-1 text-right text-[11px] ${mine ? "text-white/70" : "text-stone-500"}`}>{formatTime(m.sentAt)}</p>
                   </div>
@@ -128,13 +129,13 @@ export default function Messages() {
             <div ref={endRef} />
           </div>
 
-          {other && !canChat && <p className="border-t p-3 text-sm text-stone-500">This member's account isn't active, so you can't message them.</p>}
+          {other && !canChat && <p className="border-t border-brand-light p-3 text-sm text-stone-500">This member's account isn't active, so you can't message them.</p>}
           {canChat && (
-            <form onSubmit={send} className="border-t p-3">
+            <form onSubmit={send} className="border-t border-brand-light p-3">
               <div className="flex gap-2">
                 <input
                   aria-label="Message"
-                  className="min-w-0 flex-1 rounded-lg border p-3"
+                  className="min-w-0 flex-1 rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
                   value={text}
                   maxLength={1000}
                   onChange={(e) => {
@@ -143,7 +144,7 @@ export default function Messages() {
                   }}
                   placeholder="Type a message"
                 />
-                <button className="rounded-lg bg-[#633725] px-5 text-white disabled:opacity-50" disabled={!text.trim()}>
+                <button className="rounded-lg bg-brand px-5 font-semibold text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50" disabled={!text.trim()}>
                   Send
                 </button>
               </div>
