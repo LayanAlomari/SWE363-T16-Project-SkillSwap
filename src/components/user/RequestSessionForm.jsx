@@ -16,7 +16,16 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
     event.preventDefault();
     setError("");
 
-    const sessionTime = `${date} at ${time}`;
+    // Same format as the other requests, e.g. "Fri, Nov 20 · 6:00 PM"
+    const when = new Date(`${date}T${time}`);
+    if (when < new Date()) {
+      setError("Please choose a date and time in the future.");
+      return;
+    }
+    const sessionTime =
+      when.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) +
+      " · " +
+      when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 
     const result = sendRequest(
       service.id,
@@ -39,22 +48,22 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-5">
-      <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-[#fffaf7] p-6 shadow-xl">
+      <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-cream p-6 shadow-xl">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-5 top-3 text-2xl font-bold text-[#63351f] hover:text-[#2f211b]"
+          className="absolute right-5 top-3 text-2xl font-bold text-brand hover:text-stone-900"
           aria-label="Close request form"
         >
           ×
         </button>
 
-        <h2 className="text-2xl font-bold text-[#2f211b]">
+        <h2 className="text-2xl font-bold text-stone-900">
           Request Service
         </h2>
 
-        <p className="mt-2 text-sm text-[#705d52]">
+        <p className="mt-2 text-sm text-stone-600">
           Requesting: {service.title}
         </p>
 
@@ -67,7 +76,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* Session Type */}
           <div>
-            <label className="text-sm font-semibold text-[#2f211b]">
+            <label className="text-sm font-semibold text-stone-900">
               Session Type
             </label>
 
@@ -79,8 +88,8 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
                   onClick={() => setSessionType(type)}
                   className={`rounded-full border px-4 py-2 text-sm transition ${
                     sessionType === type
-                      ? "border-[#63351f] bg-[#63351f] text-white"
-                      : "border-[#8b7568] text-[#63351f] hover:bg-[#ead7ca]"
+                      ? "border-brand bg-brand text-white"
+                      : "border-stone-300 text-brand hover:bg-brand-light"
                   }`}
                 >
                   {type}
@@ -93,7 +102,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
           <div>
             <label
               htmlFor="session-date"
-              className="text-sm font-semibold text-[#2f211b]"
+              className="text-sm font-semibold text-stone-900"
             >
               Date
             </label>
@@ -101,10 +110,11 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
             <input
               id="session-date"
               type="date"
+              min={new Date().toLocaleDateString("en-CA")}
               value={date}
               onChange={(event) => setDate(event.target.value)}
               required
-              className="mt-2 w-full rounded-lg border border-[#8b7568] bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-[#63351f]"
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
@@ -112,7 +122,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
           <div>
             <label
               htmlFor="session-time"
-              className="text-sm font-semibold text-[#2f211b]"
+              className="text-sm font-semibold text-stone-900"
             >
               Time
             </label>
@@ -123,7 +133,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
               value={time}
               onChange={(event) => setTime(event.target.value)}
               required
-              className="mt-2 w-full rounded-lg border border-[#8b7568] bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-[#63351f]"
+              className="mt-2 w-full rounded-lg border border-stone-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
@@ -132,7 +142,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
             <div>
               <label
                 htmlFor="meeting-link"
-                className="text-sm font-semibold text-[#2f211b]"
+                className="text-sm font-semibold text-stone-900"
               >
                 Meeting Link
               </label>
@@ -144,7 +154,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
                 onChange={(event) => setMeetingLink(event.target.value)}
                 placeholder="https://zoom.us/..."
                 required
-                className="mt-2 w-full rounded-lg border border-[#8b7568] bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-[#63351f]"
+                className="mt-2 w-full rounded-lg border border-stone-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           )}
@@ -154,7 +164,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
             <div>
               <label
                 htmlFor="meeting-location"
-                className="text-sm font-semibold text-[#2f211b]"
+                className="text-sm font-semibold text-stone-900"
               >
                 Meeting Location
               </label>
@@ -166,7 +176,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
                 onChange={(event) => setLocation(event.target.value)}
                 placeholder="Example: KFUPM Library or a coffee shop"
                 required
-                className="mt-2 w-full rounded-lg border border-[#8b7568] bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-[#63351f]"
+                className="mt-2 w-full rounded-lg border border-stone-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           )}
@@ -175,7 +185,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
           <div>
             <label
               htmlFor="request-message"
-              className="text-sm font-semibold text-[#2f211b]"
+              className="text-sm font-semibold text-stone-900"
             >
               Additional Message
             </label>
@@ -185,7 +195,7 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Add any additional details..."
-              className="mt-2 min-h-[90px] w-full resize-none rounded-lg border border-[#8b7568] bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-[#63351f]"
+              className="mt-2 min-h-[90px] w-full resize-none rounded-lg border border-stone-300 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
@@ -194,14 +204,14 @@ function RequestSessionForm({ service, onClose, onSubmitted }) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-[#63351f] px-5 py-3 text-sm font-semibold text-[#63351f] hover:bg-[#ead7ca]"
+              className="rounded-full border border-brand px-5 py-3 text-sm font-semibold text-brand hover:bg-brand-light"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="rounded-full bg-[#63351f] px-5 py-3 text-sm font-semibold text-white hover:bg-[#4e2818]"
+              className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-brand-dark"
             >
               Send Request
             </button>

@@ -22,7 +22,6 @@ import Messages from "./pages/Messages";
 import Browse from "./pages/user/Browse";
 import HowItWorks from "./pages/user/HowItWorks";
 import ServiceDetails from "./pages/user/ServiceDetails";
-import { UserProvider } from "./context/UserContext";
 
 // Admin pages
 import AdminLayout from "./components/admin/AdminLayout";
@@ -39,7 +38,6 @@ import AdminAccount from "./pages/admin/AdminAccount";
 export default function App() {
   const { currentUser } = useApp(); 
   return (
-    <UserProvider>
       <Routes>
 
       {/* Public pages */}
@@ -195,6 +193,5 @@ export default function App() {
 />
 
     </Routes>
-    </UserProvider>
   );
 }

@@ -1,32 +1,38 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import SearchBar from "../../components/user/SearchBar";
 import FilterBar from "../../components/user/FilterBar";
 import ServiceCard from "../../components/common/ServiceCard";
-import { mockServices } from "../../data/mockUserData";
+import { useApp } from "../../context/AppContext";
 
 function Browse() {
+  const { services, getUser } = useApp();
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  // A category link from the Home page opens Browse already filtered
   const [selectedCategory, setSelectedCategory] =
-    useState("All Categories");
+    useState(searchParams.get("category") || "All Categories");
 
   const filteredServices = useMemo(() => {
-    return mockServices.filter((service) => {
-      const search = searchTerm.toLowerCase();
+    return services.filter((service) => {
+      const search = searchTerm.trim().toLowerCase();
+      const providerName = getUser(service.providerId)?.name ?? "";
 
       const matchesSearch =
         service.title.toLowerCase().includes(search) ||
+        service.description.toLowerCase().includes(search) ||
         service.category.toLowerCase().includes(search) ||
-        service.provider.toLowerCase().includes(search);
+        providerName.toLowerCase().includes(search);
 
       const matchesCategory =
         selectedCategory === "All Categories" ||
         service.category === selectedCategory;
 
-      return matchesSearch && matchesCategory;
+      return service.status === "Active" && matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [services, getUser, searchTerm, selectedCategory]);
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -34,15 +40,15 @@ function Browse() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fffaf7]">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 sm:px-8">
-        <h1 className="text-3xl font-bold text-[#2f211b]">
+        <h1 className="text-3xl font-bold text-stone-900">
           Explore Skills
         </h1>
 
-        <p className="mt-2 text-sm text-[#705d52]">
+        <p className="mt-2 text-sm text-stone-600">
           Discover services offered by our community and find the skills you
           need.
         </p>
@@ -55,7 +61,7 @@ function Browse() {
         </div>
 
         <section className="mt-8">
-          <h2 className="mb-4 text-xl font-bold text-[#2f211b]">
+          <h2 className="mb-4 text-xl font-bold text-stone-900">
             Browse by Category
           </h2>
 
@@ -76,14 +82,14 @@ function Browse() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-[#5b4a42] bg-[#fffaf7] px-6 py-12 text-center">
+            <div className="rounded-xl border border-brand-light bg-cream px-6 py-12 text-center">
               <div className="text-5xl">⌕</div>
 
-              <h2 className="mt-4 text-2xl font-bold text-[#2f211b]">
+              <h2 className="mt-4 text-2xl font-bold text-stone-900">
                 No Services Found
               </h2>
 
-              <p className="mt-2 text-sm text-[#705d52]">
+              <p className="mt-2 text-sm text-stone-600">
                 We couldn't find any services matching your search.
                 Try another keyword or category.
               </p>
@@ -91,7 +97,7 @@ function Browse() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="mt-6 rounded-full bg-[#63351f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4e2818]"
+                className="mt-6 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand-dark"
               >
                 Clear Filters
               </button>

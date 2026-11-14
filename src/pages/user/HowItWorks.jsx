@@ -21,16 +21,16 @@ function HowItWorks() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fffaf7]">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:px-8">
         <section className="mx-auto max-w-5xl">
-          <h1 className="text-3xl font-bold text-[#2f211b] sm:text-4xl">
+          <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">
             How Skill Swap Works
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#705d52]">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-600">
             Skill Swap helps people exchange knowledge and services using Time
             Credits instead of money.
           </p>
@@ -39,17 +39,17 @@ function HowItWorks() {
             {steps.map((step) => (
               <article
                 key={step.number}
-                className="border border-[#5b4a42] bg-[#fffaf7] p-6 text-center"
+                className="border border-brand-light bg-cream p-6 text-center"
               >
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#63351f] text-xl font-bold text-white">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-xl font-bold text-white">
                   {step.number}
                 </div>
 
-                <h2 className="mt-5 text-lg font-bold text-[#2f211b]">
+                <h2 className="mt-5 text-lg font-bold text-stone-900">
                   {step.title}
                 </h2>
 
-                <p className="mt-3 text-sm leading-6 text-[#705d52]">
+                <p className="mt-3 text-sm leading-6 text-stone-600">
                   {step.description}
                 </p>
               </article>
