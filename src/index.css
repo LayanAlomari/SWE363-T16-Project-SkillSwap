@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* Brand colors */
+@theme {
+  --color-brand: #633725;        /* main brown */
+  --color-brand-dark: #4a2819;   /* hover */
+  --color-brand-light: #f3e2d8;  /* light backgrounds, selected items */
+  --color-cream: #fbf5f1;        /* cards and headers */
+}
+
+/* Keep space for the scrollbar so pages don't shift sideways */
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background-color: #ffffff;
+  color: #1c1917;
+}
