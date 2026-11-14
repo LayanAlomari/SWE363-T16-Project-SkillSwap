@@ -4,13 +4,13 @@ import AuthLayout from "../../components/auth/AuthLayout";
 import FormInput from "../../components/auth/FormInput";
 import Checkbox from "../../components/auth/Checkbox";
 import SuccessBox from "../../components/auth/SuccessBox";
-import { findUserByEmail, INITIAL_CREDITS } from "../../data/mockUsers";
+import { findUserByEmail } from "../../data/mockUsers";
 import { useApp } from "../../context/AppContext";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Register() {
-  const { registerUser, currentUser } = useApp();
+  const { registerUser, currentUser, settings } = useApp();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,7 +63,7 @@ export default function Register() {
       <AuthLayout>
         <SuccessBox
           title="Account Created Successfully!"
-          message={`You have received ${INITIAL_CREDITS} Time Credits. You can now log in to your account.`}
+          message={`You have received ${settings.welcomeCredits} Time Credits. You can now log in to your account.`}
         />
         <div className="mx-auto mt-6 max-w-[720px]">
           <Link to="/login" className="block rounded-full bg-brand py-2.5 text-center text-lg font-semibold text-white hover:bg-brand-dark">

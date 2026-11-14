@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // Authentication pages
 import Login from "./pages/auth/Login";
@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 
 // User pages
+import Home from "./pages/user/Home";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import UserDashboard from "./pages/user/UserDashboard";
 import MyServices from "./pages/user/MyServices";
@@ -17,12 +18,21 @@ import Wallet from "./pages/user/Wallet";
 import PageLayout from "./components/common/PageLayout";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
+import Browse from "./pages/user/Browse";
+import HowItWorks from "./pages/user/HowItWorks";
+import ServiceDetails from "./pages/user/ServiceDetails";
+import { UserProvider } from "./context/UserContext";
 
 export default function App() {
   return (
-    <Routes>
-      {/* "/" redirects to Login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+    <UserProvider>
+      <Routes>
+
+      {/* Public pages */}
+     <Route path="/" element={<Home />} />
+     <Route path="/browse" element={<Browse />} />
+     <Route path="/how-it-works" element={<HowItWorks />} />
+     <Route path="/services/:id" element={<ServiceDetails />} />
 
       {/* Authentication */}
       <Route path="/login" element={<Login />} />
@@ -42,5 +52,6 @@ export default function App() {
       {/* Other members' profiles can be viewed without logging in */}
       <Route path="/users/:id" element={<Profile />} />
     </Routes>
+    </UserProvider>
   );
 }

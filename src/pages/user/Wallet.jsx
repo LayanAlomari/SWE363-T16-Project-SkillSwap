@@ -28,7 +28,7 @@ const monthOf = (iso) => new Date(iso + "T00:00:00").toLocaleDateString("en-US",
 const dayOf = (iso) => new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
 export default function Wallet() {
-  const { currentUser, transactions, requests } = useApp();
+  const { currentUser, transactions, requests, settings } = useApp();
   const [filter, setFilter] = useState("all");
   const me = currentUser.id;
 
@@ -136,7 +136,7 @@ export default function Wallet() {
             <Info size={18} className="text-brand" /> How Time Credits work
           </h2>
           <ol className="mt-3 flex flex-col gap-3 text-sm text-stone-700">
-            <li><span className="font-semibold text-stone-900">1 hour = 1 credit.</span> Every member starts with 2 welcome credits.</li>
+            <li><span className="font-semibold text-stone-900">1 hour = {settings.creditsPerHour} {settings.creditsPerHour === 1 ? "credit" : "credits"}.</span> Every member starts with {settings.welcomeCredits} welcome credits.</li>
             <li><span className="font-semibold text-stone-900">Request a session:</span> nothing is taken yet.</li>
             <li><span className="font-semibold text-stone-900">It's accepted:</span> the credits are put on hold, so you can't spend them twice.</li>
             <li><span className="font-semibold text-stone-900">You confirm it took place:</span> the credits go to the teacher.</li>

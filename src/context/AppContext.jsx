@@ -31,9 +31,9 @@ function usePersistentState(key, initialValue) {
   return [value, setValue];
 }
 
-const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories", "skillswap_notifications", "skillswap_messages"];
+const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories", "skillswap_notifications", "skillswap_messages", "skillswap_settings"];
 // Version of the demo data. When it changes, old saved data is cleared.
-const DATA_VERSION = "7";
+const DATA_VERSION = "8";
 try {
   if (localStorage.getItem("skillswap_data_version") !== DATA_VERSION) {
     [...STORAGE_KEYS, "skillswap_users_v2"].forEach((k) => localStorage.removeItem(k));
@@ -42,6 +42,9 @@ try {
 } catch {
   // localStorage not available.
 }
+
+// Default credit rules: credits a new member starts with, and the price of one hour.
+const INITIAL_SETTINGS = { welcomeCredits: 2, creditsPerHour: 1 };
 
 // Finishing a session: the provider marks it done, then the seeker confirms it.
 // If the seeker doesn't answer within CONFIRM_HOURS, it is completed automatically.
@@ -66,6 +69,8 @@ export function AppProvider({ children }) {
   const [categories, setCategories] = usePersistentState("skillswap_categories", initialCategories);
   const [notifications, setNotifications] = usePersistentState("skillswap_notifications", initialNotifications);
   const [messages, setMessages] = usePersistentState("skillswap_messages", initialMessages);
+  // Credit rules the admin can change
+  const [settings, setSettings] = usePersistentState("skillswap_settings", INITIAL_SETTINGS);
 
   // Save users to localStorage whenever they change.
   useEffect(() => saveUsers(users), [users]);
@@ -111,11 +116,12 @@ export function AppProvider({ children }) {
 
   // ---------- Account ----------
   function registerUser(data) {
-    const user = addUser(data); // saves the user with the welcome credits
+    const user = addUser(data);
     const joined = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" }); // e.g. "Nov 2026"
-    setUsers(getUsers().map((u) => (u.id === user.id ? { ...u, joined } : u)));
-    addTransaction(user.id, "welcome", user.credits, null, "Welcome credits"); // first entry in the credit history
-    return { ...user, joined };
+    const credits = settings.welcomeCredits;
+    setUsers(getUsers().map((u) => (u.id === user.id ? { ...u, joined, credits } : u)));
+    addTransaction(user.id, "welcome", credits, null, "Welcome credits"); // first entry in the credit history
+    return { ...user, joined, credits };
   }
   function login(user) {
     setUsers(getUsers()); // reload users from localStorage
@@ -138,12 +144,12 @@ export function AppProvider({ children }) {
   }
 
   // ---------- My Services ----------
-  // data = { title, category, durationHours, description }. Price rule: 1 hour = 1 Time Credit.
+  // data = { title, category, durationHours, description }. Price = hours × creditsPerHour.
   function addService(data) {
     if (!currentUser) return fail("Please log in first.");
     setServices((prev) => [
       ...prev,
-      { ...data, id: Date.now(), providerId: currentUser.id, credits: data.durationHours, status: "Active" },
+      { ...data, id: Date.now(), providerId: currentUser.id, credits: data.durationHours * settings.creditsPerHour, status: "Active" },
     ]);
     return ok(`"${data.title}" was added to your services.`);
   }
@@ -151,7 +157,7 @@ export function AppProvider({ children }) {
     const service = getService(id);
     if (!service || service.providerId !== currentUserId) return fail("You can only edit your own services.");
     // Requests that were already sent keep the price they were sent with.
-    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...data, credits: data.durationHours } : s)));
+    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...data, credits: data.durationHours * settings.creditsPerHour } : s)));
     return ok("Your changes were saved.");
   }
   function deleteService(id) {
@@ -169,22 +175,64 @@ export function AppProvider({ children }) {
   }
 
   // ---------- Requests (credit rule: held on accept, moved on complete, returned on cancel) ----------
-  function sendRequest(serviceId, sessionTime, message = "") {
-    const service = getService(serviceId);
-    if (!currentUser) return fail("Please log in or create an account to request this service.");
-    if (!service) return fail("Service not found.");
-    if (service.providerId === currentUser.id) return fail("You cannot request your own service.");
-    if (currentUser.credits < service.credits) return { ...fail("Not enough Time Credits."), notEnoughCredits: true };
-    setRequests((prev) => [
-      ...prev,
-      {
-        id: nextRequestId(), serviceId, seekerId: currentUser.id, providerId: service.providerId,
-        credits: service.credits, status: "Pending", date: today(), sessionTime, message, rated: false,
-      },
-    ]);
-    notify(service.providerId, "New service request", `${currentUser.name} requested ${service.title}.`, "/requests");
-    return ok("Request sent! The provider will be notified.");
+function sendRequest(
+  serviceId,
+  sessionTime,
+  message = "",
+  sessionDetails = {}
+) {
+  const service = getService(serviceId);
+
+  if (!currentUser) {
+    return fail(
+      "Please log in or create an account to request this service."
+    );
   }
+
+  if (!service) {
+    return fail("Service not found.");
+  }
+
+  if (service.providerId === currentUser.id) {
+    return fail("You cannot request your own service.");
+  }
+
+  if (currentUser.credits < service.credits) {
+    return {
+      ...fail("Not enough Time Credits."),
+      notEnoughCredits: true,
+    };
+  }
+
+  setRequests((prev) => [
+    ...prev,
+    {
+      id: nextRequestId(),
+      serviceId,
+      seekerId: currentUser.id,
+      providerId: service.providerId,
+      credits: service.credits,
+      status: "Pending",
+      date: today(),
+      sessionTime,
+      message,
+      rated: false,
+
+      sessionType: sessionDetails.sessionType || "Online",
+      meetingLink: sessionDetails.meetingLink || "",
+      location: sessionDetails.location || "",
+    },
+  ]);
+
+  notify(
+    service.providerId,
+    "New service request",
+    `${currentUser.name} requested ${service.title}.`,
+    "/requests"
+  );
+
+  return ok("Request sent! The provider will be notified.");
+}
 
   function acceptRequest(id) {
     const r = getRequest(id);
@@ -409,6 +457,7 @@ export function AppProvider({ children }) {
     setCategories(initialCategories);
     setNotifications(initialNotifications);
     setMessages(initialMessages);
+    setSettings(INITIAL_SETTINGS);
   }
 
   const value = {
@@ -421,6 +470,7 @@ export function AppProvider({ children }) {
     setUserStatus, adjustBalance, addCategory, renameCategory, deleteCategory,
     myNotifications, unreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification,
     myConversations, unreadMessages, sendMessage, markConversationRead,
+    settings, setSettings,
     resetDemoData,
   };
 
