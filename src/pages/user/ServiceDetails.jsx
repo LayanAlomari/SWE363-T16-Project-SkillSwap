@@ -29,17 +29,17 @@ function ServiceDetails() {
 
   if (!service) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#fffaf7]">
+      <div className="flex min-h-screen flex-col bg-white">
         <Navbar />
 
         <main className="flex flex-1 flex-col items-center justify-center px-5 py-20 text-center">
-          <h1 className="text-2xl font-bold text-[#2f211b]">
+          <h1 className="text-2xl font-bold text-stone-900">
             Service Not Found
           </h1>
 
           <Link
             to="/browse"
-            className="mt-5 rounded-full bg-[#63351f] px-5 py-3 text-sm font-semibold text-white"
+            className="mt-5 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white"
           >
             Back to Browse
           </Link>
@@ -70,46 +70,46 @@ function ServiceDetails() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fffaf7]">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-8">
         <Link
           to="/browse"
-          className="text-sm font-semibold text-[#63351f] underline"
+          className="text-sm font-semibold text-brand underline"
         >
           ← Back to Browse
         </Link>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[2fr_1fr]">
-          <section className="rounded-xl border border-[#5b4a42] bg-[#fffaf7] p-6">
-            <span className="rounded-full bg-[#ead7ca] px-3 py-1 text-xs font-semibold text-[#63351f]">
+          <section className="rounded-xl border border-brand-light bg-cream p-6">
+            <span className="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand">
               {service.category}
             </span>
 
-            <h1 className="mt-6 text-3xl font-bold text-[#2f211b]">
+            <h1 className="mt-6 text-3xl font-bold text-stone-900">
               {service.title}
             </h1>
 
-            <p className="mt-4 text-sm leading-6 text-[#705d52]">
+            <p className="mt-4 text-sm leading-6 text-stone-600">
               {service.description}
             </p>
 
-            <div className="mt-8 border-t border-[#eadfd8] pt-6">
-              <h2 className="font-bold text-[#2f211b]">
+            <div className="mt-8 border-t border-brand-light pt-6">
+              <h2 className="font-bold text-stone-900">
                 Service Provider
               </h2>
 
-              <p className="mt-2 text-sm text-[#705d52]">
+              <p className="mt-2 text-sm text-stone-600">
                 <Link
                   to={`/users/${service.providerId}`}
-                  className="font-semibold text-[#63351f] hover:underline"
+                  className="font-semibold text-brand hover:underline"
                 >
                   {provider?.name}
                 </Link>
               </p>
 
-              <p className="mt-3 text-sm text-[#63351f]">
+              <p className="mt-3 text-sm text-brand">
                 {service.reviewsCount > 0
                   ? `⭐ ${service.rating.toFixed(1)} (${service.reviewsCount} ${service.reviewsCount === 1 ? "review" : "reviews"})`
                   : "⭐ New"}
@@ -117,24 +117,24 @@ function ServiceDetails() {
             </div>
 
             {/* Reviews */}
-            <div className="mt-8 border-t border-[#eadfd8] pt-6">
-              <h2 className="font-bold text-[#2f211b]">Reviews</h2>
+            <div className="mt-8 border-t border-brand-light pt-6">
+              <h2 className="font-bold text-stone-900">Reviews</h2>
 
               {serviceReviews.length === 0 ? (
-                <p className="mt-2 text-sm text-[#705d52]">No reviews yet.</p>
+                <p className="mt-2 text-sm text-stone-600">No reviews yet.</p>
               ) : (
                 <ul className="mt-3 space-y-4">
                   {serviceReviews.map((r) => (
                     <li key={r.id} className="text-sm">
                       <div className="flex flex-wrap items-center gap-2">
                         <Stars value={r.stars} size={14} />
-                        <span className="font-semibold text-[#2f211b]">
+                        <span className="font-semibold text-stone-900">
                           {getUser(r.reviewerId)?.name}
                         </span>
-                        <span className="text-xs text-[#927d70]">{r.date}</span>
+                        <span className="text-xs text-stone-500">{r.date}</span>
                       </div>
                       {r.comment && (
-                        <p className="mt-1 leading-6 text-[#705d52]">{r.comment}</p>
+                        <p className="mt-1 leading-6 text-stone-600">{r.comment}</p>
                       )}
                     </li>
                   ))}
@@ -143,22 +143,22 @@ function ServiceDetails() {
             </div>
           </section>
 
-          <aside className="h-fit rounded-xl border border-[#5b4a42] bg-[#f8eee8] p-6">
-            <h2 className="text-xl font-bold text-[#2f211b]">
+          <aside className="h-fit rounded-xl border border-brand-light bg-cream p-6">
+            <h2 className="text-xl font-bold text-stone-900">
               Service Details
             </h2>
 
-            <div className="mt-5 space-y-4 text-sm text-[#705d52]">
+            <div className="mt-5 space-y-4 text-sm text-stone-600">
               <div className="flex justify-between">
                 <span>Duration</span>
-                <span className="font-semibold text-[#2f211b]">
+                <span className="font-semibold text-stone-900">
                   {service.durationHours} {service.durationHours === 1 ? "hour" : "hours"}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Cost</span>
-                <span className="font-semibold text-[#63351f]">
+                <span className="font-semibold text-brand">
                   {service.credits} {service.credits === 1 ? "Credit" : "Credits"}
                 </span>
               </div>
@@ -178,7 +178,7 @@ function ServiceDetails() {
               <button
                 type="button"
                 onClick={handleRequest}
-                className="mt-7 w-full rounded-full bg-[#63351f] px-5 py-3 font-semibold text-white hover:bg-[#4e2818]"
+                className="mt-7 w-full rounded-full bg-brand px-5 py-3 font-semibold text-white hover:bg-brand-dark"
               >
                 Request Service
               </button>

@@ -11,28 +11,28 @@ function Home() {
   const featured = services.filter((s) => s.status === "Active").slice(0, 3);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#fffaf7]">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 sm:px-8">
         {/* Hero Section */}
-        <section className="mx-auto max-w-5xl rounded-xl border border-[#5b4a42] bg-[#e8e0d2] px-6 py-12 text-center sm:px-12">
-          <h1 className="text-4xl font-bold text-[#1f1713] sm:text-6xl">
+        <section className="mx-auto max-w-5xl rounded-xl border border-brand-light bg-brand-light px-6 py-12 text-center sm:px-12">
+          <h1 className="text-4xl font-bold text-stone-900 sm:text-6xl">
             SKILL SWAP
           </h1>
 
-          <h2 className="mt-3 text-xl font-bold text-[#63351f] sm:text-2xl">
+          <h2 className="mt-3 text-xl font-bold text-brand sm:text-2xl">
             Share Your Skills. Learn From Others.
           </h2>
 
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#3f3028]">
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-stone-700">
             Exchange your time and skills with members of our community.
             No money needed.
           </p>
 
           <a
             href="/browse"
-            className="mt-7 inline-block rounded-full bg-[#63351f] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#4e2818]"
+            className="mt-7 inline-block rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark"
           >
             Explore Skills
           </a>
@@ -40,11 +40,11 @@ function Home() {
 
         {/* Platform Introduction */}
         <section className="mx-auto mt-12 max-w-3xl text-center">
-          <h2 className="text-2xl font-bold text-[#2f211b]">
+          <h2 className="text-2xl font-bold text-stone-900">
             Learn, Share, and Connect
           </h2>
 
-          <p className="mt-3 text-sm leading-6 text-[#705d52]">
+          <p className="mt-3 text-sm leading-6 text-stone-600">
             Skill Swap is a community platform where users exchange skills and
             services using Time Credits instead of money.
           </p>
@@ -53,13 +53,13 @@ function Home() {
         {/* Categories */}
         <section className="mt-12">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[#2f211b]">
+            <h2 className="text-2xl font-bold text-stone-900">
               Browse by Category
             </h2>
 
             <a
               href="/browse"
-              className="text-xs font-semibold text-[#63351f] underline"
+              className="text-xs font-semibold text-brand underline"
             >
               All Categories
             </a>
@@ -80,13 +80,13 @@ function Home() {
         {/* Featured Services */}
         <section className="mt-12">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[#2f211b]">
+            <h2 className="text-2xl font-bold text-stone-900">
               Available Services
             </h2>
 
             <a
               href="/browse"
-              className="text-xs font-semibold text-[#63351f] underline"
+              className="text-xs font-semibold text-brand underline"
             >
               Explore More
             </a>
