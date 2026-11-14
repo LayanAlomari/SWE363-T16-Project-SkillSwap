@@ -50,7 +50,8 @@ export const CONFIRM_HOURS = 48;
 export const confirmDeadline = (r) => new Date(new Date(r.markedDoneAt).getTime() + CONFIRM_HOURS * 3600 * 1000);
 
 const ACTIVE_STATUSES = ["Pending", "Accepted", AWAITING];
-const today = () => new Date().toISOString().slice(0, 10);
+// Today's date in the user's own time zone, as "YYYY-MM-DD" (toISOString would use UTC and can be a day off)
+const today = () => new Date().toLocaleDateString("en-CA");
 const ok = (message) => ({ ok: true, message });
 const fail = (error) => ({ ok: false, error });
 
@@ -248,7 +249,7 @@ export function AppProvider({ children }) {
     setTransactions((prev) =>
       prev.map((t) =>
         t.requestId === r.id && t.type === "held"
-          ? { ...t, type: "spent", description: `${title} with ${getUser(r.providerId)?.name}` }
+          ? { ...t, type: "spent", description: `${title} with ${getUser(r.providerId)?.name}`, date: today() }
           : t
       )
     );
