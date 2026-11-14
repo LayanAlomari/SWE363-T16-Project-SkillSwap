@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAdmin } from "../../context/AdminContext";
+import { useApp } from "../../context/AppContext";
 export default function ManageUsers() {
-  const { users } = useAdmin();
+const { users: allUsers } = useApp();
+const users = allUsers.filter((user) => user.role !== "admin");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const visible = users.filter(

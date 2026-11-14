@@ -1,52 +1,85 @@
+
 import React, { useState } from "react";
-import { useAdmin } from "../../context/AdminContext";
-import ConfirmModal from "../../components/admin/ConfirmModal";
+import { useApp } from "../../context/AppContext";
+import ConfirmModal from "../../components/common/ConfirmModal";
+
 export default function ManageCategories() {
-  const { categories, setCategories } = useAdmin();
+  const {
+    categories,
+    services,
+    addCategory,
+    renameCategory,
+    deleteCategory,
+  } = useApp();
+
   const [name, setName] = useState("");
   const [editing, setEditing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [error, setError] = useState("");
+
+  // Add or edit a category
   function save(e) {
     e.preventDefault();
+
     const value = name.trim();
-    if (!value) return setError("Enter a category name.");
-    if (
-      categories.some(
-        (c) => c.name.toLowerCase() === value.toLowerCase() && c.id !== editing,
-      )
-    )
-      return setError("Category already exists.");
-    if (editing !== null)
-      setCategories((prev) =>
-        prev.map((c) => (c.id === editing ? { ...c, name: value } : c)),
-      );
-    else
-      setCategories((prev) => [
-        ...prev,
-        { id: Date.now(), name: value, services: 0 },
-      ]);
+
+    const result =
+      editing !== null
+        ? renameCategory(editing, value)
+        : addCategory(value);
+
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
     setName("");
     setEditing(null);
     setError("");
   }
+
+  // Delete a category
+  function handleDelete() {
+    const result = deleteCategory(deleting);
+
+    if (!result.ok) {
+      setError(result.error);
+    } else {
+      setError("");
+    }
+
+    setDeleting(null);
+  }
+
   return (
     <>
-      <h1 className="mb-6 text-3xl font-bold">Manage Categories</h1>
+      <h1 className="mb-6 text-3xl font-bold">
+        Manage Categories
+      </h1>
+
+      {/* Add / Edit Category Form */}
       <form
         onSubmit={save}
-        className="mb-6 flex flex-wrap gap-3 rounded-xl border bg-[#fbf5f1] p-4"
+        className="mb-6 flex flex-wrap gap-3 rounded-xl border border-brand-light bg-cream p-4"
       >
         <input
           aria-label="Category name"
-          className="min-w-0 flex-1 rounded-lg border p-3"
+          className="min-w-0 flex-1 rounded-lg border border-stone-300 p-3"
           placeholder="Category name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setError("");
+          }}
         />
-        <button className="rounded-lg bg-[#633725] px-5 py-2 text-white">
+
+        <button
+          type="submit"
+          className="rounded-lg bg-brand px-5 py-2 text-white hover:bg-brand-dark"
+        >
           {editing === null ? "Add Category" : "Save Changes"}
         </button>
+
         {editing !== null && (
           <button
             type="button"
@@ -55,43 +88,70 @@ export default function ManageCategories() {
               setName("");
               setError("");
             }}
+            className="rounded-lg bg-stone-200 px-5 py-2"
           >
             Cancel
           </button>
         )}
-        {error && (
-          <p role="alert" className="w-full text-red-600">
-            {error}
-          </p>
-        )}
       </form>
-      <div className="overflow-x-auto rounded-xl border">
+
+      {/* Error Message */}
+      {error && (
+        <p
+          role="alert"
+          className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700"
+        >
+          {error}
+        </p>
+      )}
+
+      {/* Categories Table */}
+      <div className="overflow-x-auto rounded-xl border border-brand-light">
         <table className="w-full min-w-[450px] text-left">
-          <thead className="bg-[#633725] text-white">
+          <thead className="bg-brand text-white">
             <tr>
               <th className="p-3">Category</th>
               <th className="p-3">Services</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {categories.map((c) => (
-              <tr key={c.id} className="border-t bg-[#fbf5f1]">
+              <tr
+                key={c.id}
+                className="border-t border-brand-light bg-cream"
+              >
                 <td className="p-3">{c.name}</td>
-                <td className="p-3">{c.services}</td>
+
+                <td className="p-3">
+                  {
+                    services.filter(
+                      (s) => s.category === c.name
+                    ).length
+                  }
+                </td>
+
                 <td className="p-3">
                   <button
-                    className="mr-4 text-[#633725] underline"
+                    type="button"
+                    className="mr-4 text-brand underline"
                     onClick={() => {
                       setEditing(c.id);
                       setName(c.name);
+                      setError("");
                     }}
                   >
                     Edit
                   </button>
+
                   <button
+                    type="button"
                     className="text-red-700 underline"
-                    onClick={() => setDeleting(c.id)}
+                    onClick={() => {
+                      setDeleting(c.id);
+                      setError("");
+                    }}
                   >
                     Delete
                   </button>
@@ -101,18 +161,18 @@ export default function ManageCategories() {
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
       {deleting !== null && (
         <ConfirmModal
           title="Delete Category"
           message="Are you sure you want to delete this category?"
           confirmLabel="Delete"
           onCancel={() => setDeleting(null)}
-          onConfirm={() => {
-            setCategories((prev) => prev.filter((c) => c.id !== deleting));
-            setDeleting(null);
-          }}
+          onConfirm={handleDelete}
         />
       )}
     </>
   );
 }
+
