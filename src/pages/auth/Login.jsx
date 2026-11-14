@@ -74,7 +74,7 @@ export default function Login() {
           {success && <p className="mt-4 font-bold text-green-700">{success}</p>}
         </div>
 
-        {/* LOGIN button sits on the right, under the form (like the Figma) */}
+        {/* LOGIN button on the right, under the form */}
         <div className="mt-10 flex w-full max-w-[960px] justify-center sm:justify-end">
           <button
             type="submit"

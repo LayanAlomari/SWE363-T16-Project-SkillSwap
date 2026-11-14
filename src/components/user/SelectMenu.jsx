@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
-// Dropdown with the site's own design (the browser's built-in <select> list can't be styled).
+// Styled dropdown list.
 // options = [{ value, label }]. Keyboard: ↓ / ↑ to move, Enter or Space to choose, Escape to close.
 export default function SelectMenu({ id, labelId, options, value, onChange }) {
   const [open, setOpen] = useState(false);

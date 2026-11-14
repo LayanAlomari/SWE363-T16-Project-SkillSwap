@@ -1,6 +1,6 @@
 import { Star } from "lucide-react";
 
-// Shows a rating as 5 stars, e.g. <Stars value={4} /> -> ★★★★☆
+// Shows a rating (1–5) as stars.
 export default function Stars({ value, size = 16 }) {
   return (
     <span className="inline-flex items-center gap-0.5" role="img" aria-label={`${value} out of 5 stars`}>

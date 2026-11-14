@@ -1,11 +1,12 @@
-// Shared service requests (seeker asks a provider for a service).
+// Service requests (a seeker asks a provider for a service).
 //
-// Status flow and credit rule:
+// Statuses:
 //   Pending   -> request sent, no credits move yet
-//   Accepted  -> provider accepted, the seeker's credits are HELD
-//   Completed -> provider marked it done, held credits move to the provider
-//   Rejected  -> provider rejected (held credits, if any, go back to the seeker)
-//   Cancelled -> seeker cancelled before completion (held credits go back)
+//   Accepted  -> provider accepted, the seeker's credits are held
+//   Awaiting confirmation -> provider marked it done, waiting for the seeker
+//   Completed -> seeker confirmed, held credits move to the provider
+//   Rejected  -> provider rejected, no credits move
+//   Cancelled -> seeker cancelled, held credits go back
 //
 // Every "earned" / "spent" / "held" entry in transactions.js points to one of these
 // requests, and every review in reviews.js points to a Completed one.

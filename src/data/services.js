@@ -1,7 +1,7 @@
-// Shared services offered by members.
-// Price rule: 1 hour = 1 Time Credit, so credits = durationHours * creditsPerHour.
+// Services offered by members.
+// Price: 1 hour = 1 Time Credit.
 // providerId points to a user id in mockUsers.js.
-// rating and reviewsCount are not stored here: AppContext calculates them from reviews.js.
+// rating and reviewsCount are calculated from reviews.js.
 
 export const initialServices = [
   {

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
-// Usage: <ServiceCard service={service} />
+// Card that shows one service.
 export default function ServiceCard({ service }) {
   const { getUser } = useApp();
   const provider = getUser(service.providerId);

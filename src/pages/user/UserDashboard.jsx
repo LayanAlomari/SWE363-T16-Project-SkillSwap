@@ -158,7 +158,7 @@ export default function UserDashboard() {
       </section>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Current requests */}
+        {/* Current sessions */}
         <section className="rounded-xl border border-brand-light p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-xl font-bold text-stone-900">Current sessions</h2>

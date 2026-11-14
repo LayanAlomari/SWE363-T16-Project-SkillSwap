@@ -1,4 +1,4 @@
-// Shared Time Credit history (used by the Wallet page and Admin > Adjust Balance).
+// Time Credit history.
 // amount: positive = credits added, negative = credits taken.
 // type: "welcome" | "earned" | "spent" | "held" | "refunded" | "admin"
 // Every session entry points to a request in requests.js (requestId).
