@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, Clock, ChevronDown, LogOut } from "lucide-react";
+import { Menu, X, Clock, ChevronDown, LogOut, Bell } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import logo from "../../assets/logo.png";
 
@@ -25,7 +25,7 @@ const accountLinks = [
 ];
 
 export default function Navbar() {
-  const { currentUser, logout } = useApp();
+  const { currentUser, logout, unreadCount, unreadMessages } = useApp();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false); // mobile menu
   const [accountOpen, setAccountOpen] = useState(false); // avatar menu (desktop)
@@ -76,6 +76,37 @@ export default function Navbar() {
     </Link>
   );
 
+  // Bell that opens the Notifications page, with the number of unread notifications
+  const bellLink = currentUser && (
+    <NavLink
+      to="/notifications"
+      onClick={closeMenus}
+      aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
+      className={({ isActive }) =>
+        `relative flex items-center justify-center rounded-full p-2 text-brand hover:bg-brand-light ${isActive ? "bg-brand-light" : ""}`
+      }
+    >
+      <Bell size={22} />
+      {unreadCount > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold text-white">
+          {unreadCount > 9 ? "9+" : unreadCount}
+        </span>
+      )}
+    </NavLink>
+  );
+
+  // Small red number next to "Messages" when there are unread messages
+  const linkLabel = (label, path) => (
+    <>
+      {label}
+      {path === "/messages" && currentUser && unreadMessages > 0 && (
+        <span className="ml-1.5 rounded-full bg-red-600 px-1.5 text-xs font-bold text-white" aria-label={`${unreadMessages} unread`}>
+          {unreadMessages}
+        </span>
+      )}
+    </>
+  );
+
   const loginButton = (
     <Link
       to="/login"
@@ -97,7 +128,7 @@ export default function Navbar() {
         <nav aria-label="Main" className="hidden flex-1 items-center gap-1 md:flex">
           {links.map(([label, path]) => (
             <NavLink key={path} to={path} end={path === "/"} className={linkStyle}>
-              {label}
+              {linkLabel(label, path)}
             </NavLink>
           ))}
         </nav>
@@ -108,6 +139,7 @@ export default function Navbar() {
           {currentUser && (
             <>
               {creditsLink}
+              {bellLink}
 
               {/* Avatar menu */}
               <div className="relative" ref={accountRef}>
@@ -159,13 +191,16 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Mobile: bell next to the menu button */}
+        {currentUser && <div className="ml-auto md:hidden">{bellLink}</div>}
+
         {/* Mobile menu button */}
         <button
           type="button"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
-          className="ml-auto rounded-lg p-2 text-brand md:hidden"
+          className={`rounded-lg p-2 text-brand md:hidden ${currentUser ? "" : "ml-auto"}`}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -176,7 +211,7 @@ export default function Navbar() {
         <nav aria-label="Main" className="flex flex-col gap-1 border-t border-brand-light px-5 py-3 md:hidden">
           {links.map(([label, path]) => (
             <NavLink key={path} to={path} end={path === "/"} className={linkStyle} onClick={closeMenus}>
-              {label}
+              {linkLabel(label, path)}
             </NavLink>
           ))}
 

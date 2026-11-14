@@ -5,6 +5,8 @@ import { initialRequests } from "../data/requests";
 import { initialTransactions } from "../data/transactions";
 import { initialReviews } from "../data/reviews";
 import { initialCategories } from "../data/categories";
+import { initialNotifications } from "../data/notifications";
+import { initialMessages } from "../data/messages";
 
 // One shared place for the app's data. Every page reads from here and changes data
 // only through the actions below, so all pages stay in sync.
@@ -30,10 +32,10 @@ function usePersistentState(key, initialValue) {
   return [value, setValue];
 }
 
-const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories"];
+const STORAGE_KEYS = ["skillswap_services", "skillswap_requests", "skillswap_transactions", "skillswap_reviews", "skillswap_categories", "skillswap_notifications", "skillswap_messages"];
 // When the demo data files change, increase this number so every browser
 // drops its old saved copy and loads the new data.
-const DATA_VERSION = "5";
+const DATA_VERSION = "7";
 try {
   if (localStorage.getItem("skillswap_data_version") !== DATA_VERSION) {
     [...STORAGE_KEYS, "skillswap_users_v2"].forEach((k) => localStorage.removeItem(k));
@@ -64,6 +66,8 @@ export function AppProvider({ children }) {
   const [transactions, setTransactions] = usePersistentState("skillswap_transactions", initialTransactions);
   const [reviews, setReviews] = usePersistentState("skillswap_reviews", initialReviews);
   const [categories, setCategories] = usePersistentState("skillswap_categories", initialCategories);
+  const [notifications, setNotifications] = usePersistentState("skillswap_notifications", initialNotifications);
+  const [messages, setMessages] = usePersistentState("skillswap_messages", initialMessages);
 
   // Users are saved with Razan's helper so login always sees the latest data (e.g. a suspension).
   useEffect(() => saveUsers(users), [users]);
@@ -87,6 +91,13 @@ export function AppProvider({ children }) {
   // ---------- Small helpers used by the actions ----------
   function changeCredits(userId, amount) {
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, credits: u.credits + amount } : u)));
+  }
+  // Sends a notification to one user (shown on their Notifications page and the bell in the navbar)
+  function notify(userId, title, description, link) {
+    setNotifications((prev) => [
+      { id: Date.now() + Math.random(), userId, title, description, link, read: false, date: today() },
+      ...prev,
+    ]);
   }
   function addTransaction(userId, type, amount, requestId, description) {
     setTransactions((prev) => [
@@ -175,6 +186,7 @@ export function AppProvider({ children }) {
         credits: service.credits, status: "Pending", date: today(), sessionTime, message, rated: false,
       },
     ]);
+    notify(service.providerId, "New service request", `${currentUser.name} requested ${service.title}.`, "/requests");
     return ok("Request sent! The provider will be notified.");
   }
 
@@ -187,6 +199,7 @@ export function AppProvider({ children }) {
     changeCredits(r.seekerId, -r.credits);
     addTransaction(r.seekerId, "held", -r.credits, r.id, `Held for ${getService(r.serviceId)?.title} with ${getUser(r.providerId)?.name}`);
     updateRequest(id, { status: "Accepted" });
+    notify(r.seekerId, "Request accepted", `${getUser(r.providerId)?.name} accepted your request for ${getService(r.serviceId)?.title}.`, "/requests?tab=sent");
     return ok("Request accepted. The credits are now held until the session is done.");
   }
 
@@ -195,6 +208,7 @@ export function AppProvider({ children }) {
     if (!r || r.status !== "Pending") return fail("This request can no longer be rejected.");
     if (r.providerId !== currentUserId) return fail("Only the member offering this service can reject it.");
     updateRequest(id, { status: "Rejected" });
+    notify(r.seekerId, "Request rejected", `${getUser(r.providerId)?.name} couldn't take your request for ${getService(r.serviceId)?.title}.`, "/requests?tab=sent");
     return ok(`Request from ${getUser(r.seekerId)?.name} rejected.`);
   }
 
@@ -208,6 +222,7 @@ export function AppProvider({ children }) {
       addTransaction(r.seekerId, "refunded", r.credits, r.id, `Refund for cancelled ${getService(r.serviceId)?.title}`);
     }
     updateRequest(id, { status: "Cancelled" });
+    notify(r.providerId, "Request cancelled", `${getUser(r.seekerId)?.name} cancelled their request for ${getService(r.serviceId)?.title}.`, "/requests");
     return ok(r.status === "Accepted" ? `Request cancelled. ${r.credits} credit${r.credits > 1 ? "s were" : " was"} returned to your balance.` : "Request cancelled.");
   }
 
@@ -217,6 +232,7 @@ export function AppProvider({ children }) {
     if (!r || r.status !== "Accepted") return fail("Only accepted sessions can be marked as done.");
     if (r.providerId !== currentUserId) return fail("Only the member offering this service can mark it as done.");
     updateRequest(id, { status: AWAITING, markedDoneAt: new Date().toISOString(), notYet: false });
+    notify(r.seekerId, "Please confirm your session", `${getUser(r.providerId)?.name} marked ${getService(r.serviceId)?.title} as done. Did it take place?`, "/requests?tab=sent");
     return ok(`Marked as done. ${getUser(r.seekerId)?.name} will be asked to confirm.`);
   }
 
@@ -235,6 +251,7 @@ export function AppProvider({ children }) {
     if (!r || r.status !== AWAITING) return fail("This session is not waiting for your confirmation.");
     if (r.seekerId !== currentUserId) return fail("Only the member who requested this session can do this.");
     updateRequest(id, { status: "Accepted", markedDoneAt: null, notYet: true }); // notYet: shown to the provider
+    notify(r.providerId, "Session not confirmed", `${getUser(r.seekerId)?.name} said ${getService(r.serviceId)?.title} hasn't happened yet.`, "/requests");
     return ok(`Okay, the session is back to Accepted and your credits are still held. ${getUser(r.providerId)?.name} will see that it hasn't happened yet.`);
   }
 
@@ -255,6 +272,7 @@ export function AppProvider({ children }) {
     );
     changeCredits(r.providerId, r.credits);
     addTransaction(r.providerId, "earned", r.credits, r.id, `${title} for ${getUser(r.seekerId)?.name}`);
+    notify(r.providerId, "Credits received", `You received ${r.credits} credit${r.credits > 1 ? "s" : ""} for ${title} with ${getUser(r.seekerId)?.name}.`, "/wallet");
   }
 
   // Fallback: complete sessions the seeker didn't confirm within CONFIRM_HOURS (checked every minute)
@@ -281,6 +299,7 @@ export function AppProvider({ children }) {
       ...prev,
     ]);
     updateRequest(requestId, { rated: true }); // the service's rating updates automatically
+    notify(r.providerId, "New review", `${getUser(r.seekerId)?.name} rated ${getService(r.serviceId)?.title} ${stars} star${stars > 1 ? "s" : ""}.`, "/profile");
     return ok("Thank you! Your rating has been submitted.");
   }
 
@@ -299,6 +318,7 @@ export function AppProvider({ children }) {
     if (user.credits + amount < 0) return fail("Insufficient credits.");
     changeCredits(userId, amount);
     addTransaction(userId, "admin", amount, null, reason);
+    notify(userId, "Balance updated", `An admin ${amount > 0 ? "added" : "removed"} ${Math.abs(amount)} credit${Math.abs(amount) > 1 ? "s" : ""}: ${reason}`, "/wallet");
     return ok("Balance updated successfully.");
   }
   function addCategory(name) {
@@ -324,6 +344,65 @@ export function AppProvider({ children }) {
     return ok("Category deleted.");
   }
 
+  // ---------- Notifications (for the bell and the Notifications page) ----------
+  const myNotifications = notifications
+    .filter((n) => n.userId === currentUserId)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); // newest first
+  const unreadCount = myNotifications.filter((n) => !n.read).length;
+  function markNotificationRead(id) {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  }
+  function markAllNotificationsRead() {
+    setNotifications((prev) => prev.map((n) => (n.userId === currentUserId ? { ...n, read: true } : n)));
+  }
+  function deleteNotification(id) {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }
+
+  // ---------- Messages (chat between two members) ----------
+  // My conversations, newest first: [{ otherId, user, messages (oldest first), last, unread }]
+  const myConversations = Object.values(
+    messages
+      .filter((m) => m.fromId === currentUserId || m.toId === currentUserId)
+      .reduce((groups, m) => {
+        const otherId = m.fromId === currentUserId ? m.toId : m.fromId;
+        (groups[otherId] ||= { otherId, messages: [] }).messages.push(m);
+        return groups;
+      }, {})
+  )
+    .map((c) => {
+      const sorted = [...c.messages].sort((a, b) => a.sentAt.localeCompare(b.sentAt));
+      return {
+        ...c,
+        user: getUser(c.otherId),
+        messages: sorted,
+        last: sorted[sorted.length - 1],
+        unread: sorted.filter((m) => m.toId === currentUserId && !m.read).length,
+      };
+    })
+    .sort((a, b) => b.last.sentAt.localeCompare(a.last.sentAt));
+  const unreadMessages = myConversations.reduce((sum, c) => sum + c.unread, 0);
+
+  function sendMessage(toId, text) {
+    const value = text.trim();
+    const to = getUser(toId);
+    if (!currentUser) return fail("Please log in first.");
+    if (!value) return fail("Write a message first.");
+    if (value.length > 1000) return fail("Messages can be at most 1000 characters.");
+    if (!to || to.id === currentUserId) return fail("You can't message this member.");
+    if (to.status !== "Active") return fail("This member's account isn't active.");
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), fromId: currentUserId, toId, text: value, sentAt: new Date().toISOString(), read: false },
+    ]);
+    return ok("Message sent.");
+  }
+  // Opening a conversation marks the messages I received in it as read
+  function markConversationRead(otherId) {
+    if (!messages.some((m) => m.fromId === otherId && m.toId === currentUserId && !m.read)) return;
+    setMessages((prev) => prev.map((m) => (m.fromId === otherId && m.toId === currentUserId ? { ...m, read: true } : m)));
+  }
+
   // ---------- Testing helper: put all sample data back ----------
   function resetDemoData() {
     STORAGE_KEYS.forEach((k) => localStorage.removeItem(k));
@@ -332,6 +411,8 @@ export function AppProvider({ children }) {
     setTransactions(initialTransactions);
     setReviews(initialReviews);
     setCategories(initialCategories);
+    setNotifications(initialNotifications);
+    setMessages(initialMessages);
   }
 
   const value = {
@@ -342,6 +423,8 @@ export function AppProvider({ children }) {
     sendRequest, acceptRequest, rejectRequest, cancelRequest, markDone, confirmDone, reportNotDone,
     addReview,
     setUserStatus, adjustBalance, addCategory, renameCategory, deleteCategory,
+    myNotifications, unreadCount, markNotificationRead, markAllNotificationsRead, deleteNotification,
+    myConversations, unreadMessages, sendMessage, markConversationRead,
     resetDemoData,
   };
 

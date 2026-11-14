@@ -12,6 +12,9 @@ import Requests from "./pages/user/Requests";
 import Profile from "./pages/user/Profile";
 import EditProfile from "./pages/user/EditProfile";
 import Wallet from "./pages/user/Wallet";
+import PageLayout from "./components/common/PageLayout";
+import Notifications from "./pages/Notifications";
+import Messages from "./pages/Messages";
 
 // Each team member adds the routes for their own pages below.
 export default function App() {
@@ -31,6 +34,8 @@ export default function App() {
       <Route path="/profile" element={<ProtectedRoute role="user"><Profile /></ProtectedRoute>} />
       <Route path="/profile/edit" element={<ProtectedRoute role="user"><EditProfile /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute role="user"><Wallet /></ProtectedRoute>} />
+      <Route path="/notifications" element={<ProtectedRoute role="user"><PageLayout><Notifications /></PageLayout></ProtectedRoute>} />
+      <Route path="/messages" element={<ProtectedRoute role="user"><PageLayout><Messages /></PageLayout></ProtectedRoute>} />
       {/* Other members' profiles can be viewed without logging in */}
       <Route path="/users/:id" element={<Profile />} />
     </Routes>
