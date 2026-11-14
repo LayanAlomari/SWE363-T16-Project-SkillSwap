@@ -47,7 +47,7 @@ export default function ResetPassword() {
           message="Your password has been updated successfully. You can now log in with your new password."
         />
         <div className="mx-auto mt-6 max-w-[720px]">
-          <Link to="/login" className="block rounded-full bg-brand py-3 text-center text-xl font-bold text-white hover:bg-brand-dark">
+          <Link to="/login" className="block rounded-full bg-brand py-2.5 text-center text-lg font-semibold text-white hover:bg-brand-dark">
             Back to Log In
           </Link>
         </div>
@@ -58,29 +58,29 @@ export default function ResetPassword() {
   return (
     <AuthLayout>
       <form onSubmit={handleSubmit} noValidate className="w-full max-w-[1000px]">
-        <h1 className="mb-4 text-3xl font-bold text-black">Reset Your Password</h1>
-        <p className="mb-10 text-xl font-bold text-brand">Enter a new password for your account</p>
+        <h1 className="mb-4 text-3xl font-bold text-stone-900">Reset Your Password</h1>
+        <p className="mb-10 text-lg font-semibold text-brand">Enter a new password for your account</p>
 
         <div className="max-w-[720px]">
           <FormInput label="New Password" id="newPassword" type="password" value={newPassword} onChange={setNewPassword} placeholder="Enter New Password......" autoComplete="new-password" />
           <FormInput label="Confirm New Password" id="confirmPassword" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="Confirm New Password......" autoComplete="new-password" />
         </div>
 
-        {error && <p className="text-lg font-bold text-red-600">{error}</p>}
+        {error && <p className="font-semibold text-red-600">{error}</p>}
         {!user && !error && (
-          <p className="text-lg font-bold text-red-600">
+          <p className="font-semibold text-red-600">
             This reset link is not valid.{" "}
             <Link to="/forgot-password" className="underline">Request a new one</Link>
           </p>
         )}
 
         <div className="mt-16 flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link to="/login" className="text-lg font-bold text-black hover:underline">
+          <Link to="/login" className="font-semibold text-stone-900 hover:text-brand hover:underline">
             ← Back to Login
           </Link>
           <button
             type="submit"
-            className="w-full rounded-full bg-brand px-6 py-3 text-lg font-bold text-white hover:bg-brand-dark sm:w-auto"
+            className="w-full rounded-full bg-brand px-6 py-2.5 text-lg font-semibold text-white hover:bg-brand-dark sm:w-auto"
           >
             Reset Password
           </button>

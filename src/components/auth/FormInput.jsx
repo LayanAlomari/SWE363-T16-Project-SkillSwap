@@ -1,8 +1,8 @@
-// Label + dark brown input field (same colors as the Figma design).
+// Label + brown input field (Figma design, with rounded corners like the rest of the app).
 export default function FormInput({ label, id, type = "text", value, onChange, placeholder, autoComplete }) {
   return (
-    <div className="mb-8">
-      <label htmlFor={id} className="mb-2 block text-xl font-bold text-[#533222]">
+    <div className="mb-6">
+      <label htmlFor={id} className="mb-2 block text-base font-semibold text-brand">
         {label}
       </label>
       <input
@@ -12,7 +12,7 @@ export default function FormInput({ label, id, type = "text", value, onChange, p
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        className="w-full bg-[#533222] px-3 py-2 text-lg font-bold text-white placeholder:font-bold placeholder:text-white/80 focus:outline-none focus:ring-2 focus:ring-[#c99b84]"
+        className="w-full rounded-lg bg-brand px-4 py-2.5 font-medium text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-brand-light focus:ring-offset-2"
       />
     </div>
   );

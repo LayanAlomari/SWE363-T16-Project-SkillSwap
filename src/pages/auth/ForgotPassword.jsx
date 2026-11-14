@@ -32,19 +32,19 @@ export default function ForgotPassword() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-6 text-3xl font-bold text-black">Forgot Your Password?</h1>
+      <h1 className="mb-6 text-3xl font-bold text-stone-900">Forgot Your Password?</h1>
 
       {sent ? (
         // Screen 2: "Check Your Email"
         <div className="max-w-[780px]">
-          <div className="rounded-xl border border-black bg-cream px-5 py-10">
-            <h2 className="mb-4 flex items-center gap-3 text-3xl font-bold text-black">
+          <div className="rounded-xl border border-brand-light bg-cream px-6 py-8">
+            <h2 className="mb-4 flex items-center gap-3 text-3xl font-bold text-stone-900">
               Check Your Email
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black">
-                <Check size={22} strokeWidth={3.5} className="text-white" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600">
+                <Check size={18} strokeWidth={3.5} className="text-white" />
               </span>
             </h2>
-            <p className="text-lg font-bold text-brand">
+            <p className="font-semibold text-brand">
               Password reset instructions have been sent to your email.
             </p>
           </div>
@@ -52,13 +52,13 @@ export default function ForgotPassword() {
           {/* Demo only: stands in for the link the user would get by email */}
           <Link
             to={`/reset-password?email=${encodeURIComponent(email.trim())}`}
-            className="mt-4 inline-block font-bold text-brand underline"
+            className="mt-4 inline-block font-semibold text-brand underline"
           >
             Open reset link (demo)
           </Link>
 
-          <div className="mt-24">
-            <Link to="/login" className="text-lg font-bold text-black hover:underline">
+          <div className="mt-16">
+            <Link to="/login" className="font-semibold text-stone-900 hover:text-brand hover:underline">
               ← Back to Login
             </Link>
           </div>
@@ -66,24 +66,24 @@ export default function ForgotPassword() {
       ) : (
         // Screen 1: enter email
         <form onSubmit={handleSubmit} noValidate className="w-full max-w-[1000px]">
-          <p className="mb-12 text-xl font-bold text-brand">
+          <p className="mb-12 text-lg font-semibold text-brand">
             Enter your registered email and we'll send you instructions to reset your password.
           </p>
 
           <div className="max-w-[720px]">
             <FormInput label="Email Address" id="email" type="email" value={email} onChange={setEmail} autoComplete="email" />
           </div>
-          <p className={`-mt-4 ml-2 text-lg font-bold ${error ? "text-red-600" : "text-black"}`}>
+          <p className={`-mt-3 ml-1 text-sm font-semibold ${error ? "text-red-600" : "text-stone-600"}`}>
             {error || "Please enter a valid email address"}
           </p>
 
-          <div className="mt-28 flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <Link to="/login" className="text-lg font-bold text-black hover:underline">
+          <div className="mt-20 flex flex-col-reverse gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <Link to="/login" className="font-semibold text-stone-900 hover:text-brand hover:underline">
               ← Back to Login
             </Link>
             <button
               type="submit"
-              className="w-full rounded-full bg-brand px-6 py-3 text-lg font-bold text-white hover:bg-brand-dark sm:w-auto"
+              className="w-full rounded-full bg-brand px-6 py-2.5 text-lg font-semibold text-white hover:bg-brand-dark sm:w-auto"
             >
               Send Reset Link
             </button>
