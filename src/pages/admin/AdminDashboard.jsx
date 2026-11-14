@@ -2,15 +2,29 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import StatsCard from "../../components/admin/StatsCard";
-import { useAdmin } from "../../context/AdminContext";
+import { useApp } from "../../context/AppContext";
 
 export default function AdminDashboard() {
-  const { users, settings } = useAdmin();
+  const { users, services, requests } = useApp();
   const navigate = useNavigate();
 
+  const totalUsers = users.filter(
+    (user) => user.role !== "admin"
+  ).length;
 
-  const totalRequests = 5;
-  const completedSessions = 2;
+  const activeServices = services.filter(
+    (service) => service.status === "Active"
+  ).length;
+
+  const totalRequests = requests.length;
+
+  const completedSessions = requests.filter(
+    (request) => request.status === "Completed"
+  ).length;
+
+  const recentActivity = [...requests]
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+    .slice(0, 3);
 
   return (
     <>
@@ -19,40 +33,27 @@ export default function AdminDashboard() {
       </h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Users */}
         <button
           type="button"
           onClick={() => navigate("/admin/users")}
           className="w-full cursor-pointer text-left"
         >
-          <StatsCard
-            label="Total Users"
-            value={users.length}
-          />
+          <StatsCard label="Total Users" value={totalUsers} />
         </button>
 
-        {/* Active Services */}
         <StatsCard
           label="Active Services"
-          value={users.reduce(
-            (total, user) => total + user.services,
-            0
-          )}
+          value={activeServices}
         />
 
-        {/* All Requests */}
         <button
           type="button"
           onClick={() => navigate("/admin/requests")}
           className="w-full cursor-pointer text-left"
         >
-          <StatsCard
-            label="Requests"
-            value={totalRequests}
-          />
+          <StatsCard label="Requests" value={totalRequests} />
         </button>
 
-        {/* Completed Sessions */}
         <button
           type="button"
           onClick={() =>
@@ -68,51 +69,60 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-3">
-        {/* Recent Activity */}
-        <section className="rounded-xl border border-stone-300 bg-[#fbf5f1] p-5 md:col-span-2">
+        <section className="rounded-xl border border-brand-light bg-cream p-5 md:col-span-2">
           <h2 className="mb-4 text-xl font-bold">
             Recent Activity
           </h2>
 
-          <p className="mb-3">
-            New user joined: Nora Khalid
-          </p>
-
-          <p className="mb-3">
-            Session completed: Web Design
-          </p>
-
-          <p>
-            Account suspended: Najlaa Alanzi
-          </p>
+          {recentActivity.length > 0 ? (
+            <div className="space-y-3">
+              {recentActivity.map((request) => (
+                <div
+                  key={request.id}
+                  className="border-b border-brand-light pb-3"
+                >
+                  <p className="font-medium">
+                    Request {request.id} — {request.status}
+                  </p>
+                  <p className="text-sm text-stone-600">
+                    {request.date}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-stone-500">
+              No recent activity.
+            </p>
+          )}
 
           <div className="mt-5 text-right">
             <Link
-              to="/admin/users"
-              className="rounded-lg bg-[#633725] px-4 py-2 text-white"
+              to="/admin/requests"
+              className="inline-block rounded-lg bg-brand px-4 py-2 text-white hover:bg-brand-dark"
             >
-              View Users
+              View Requests
             </Link>
           </div>
         </section>
 
-        {/* Credit Settings */}
-        <section className="rounded-xl border border-stone-300 bg-[#fbf5f1] p-5">
+        <section className="rounded-xl border border-brand-light bg-cream p-5">
           <h2 className="text-lg font-bold">
-            Initial Credit Balance
+            Time Credit System
           </h2>
 
-          <p className="mt-3 text-sm text-[#945338]">
-            Credits given to new users on sign-up
+          <p className="mt-3 text-sm text-stone-600">
+            Skill Swap uses time credits to exchange
+            services without money.
           </p>
 
-          <p className="my-5 rounded-lg bg-[#f3e2d8] p-3 text-center font-bold">
-            {settings.welcomeCredits} Credits
+          <p className="my-5 rounded-lg bg-brand-light p-3 text-center font-bold text-brand">
+            1 Hour = 1 Time Credit
           </p>
 
           <Link
             to="/admin/credits"
-            className="block rounded-lg bg-[#633725] px-4 py-2 text-center text-white"
+            className="block rounded-lg bg-brand px-4 py-2 text-center text-white hover:bg-brand-dark"
           >
             Edit Settings
           </Link>

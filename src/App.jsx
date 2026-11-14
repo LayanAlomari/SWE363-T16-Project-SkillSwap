@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 // Authentication pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import { useApp } from "./context/AppContext";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 
@@ -23,16 +24,45 @@ import HowItWorks from "./pages/user/HowItWorks";
 import ServiceDetails from "./pages/user/ServiceDetails";
 import { UserProvider } from "./context/UserContext";
 
+// Admin pages
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageUsers from "./pages/admin/ManageUsers";
+import UserDetails from "./pages/admin/UserDetails";
+import AdjustBalance from "./pages/admin/AdjustBalance";
+import ManageCategories from "./pages/admin/ManageCategories";
+import ManageRequests from "./pages/admin/ManageRequests";
+import CreditSettings from "./pages/admin/CreditSettings";
+import AdminAccount from "./pages/admin/AdminAccount";
+
+
 export default function App() {
+  const { currentUser } = useApp(); 
   return (
     <UserProvider>
       <Routes>
 
       {/* Public pages */}
-     <Route path="/" element={<Home />} />
+     <Route
+ 
+
+  path="/"
+  element={
+    currentUser?.role === "admin" ? (
+      <Navigate to="/admin" replace />
+    ) : currentUser?.role === "user" ? (
+      <Navigate to="/dashboard" replace />
+    ) : (
+      <Home />
+    )
+  }
+
+
+/>
      <Route path="/browse" element={<Browse />} />
      <Route path="/how-it-works" element={<HowItWorks />} />
      <Route path="/services/:id" element={<ServiceDetails />} />
+  
 
       {/* Authentication */}
       <Route path="/login" element={<Login />} />
@@ -51,6 +81,119 @@ export default function App() {
       <Route path="/messages" element={<ProtectedRoute role="user"><PageLayout><Messages /></PageLayout></ProtectedRoute>} />
       {/* Other members' profiles can be viewed without logging in */}
       <Route path="/users/:id" element={<Profile />} />
+
+
+{/* Admin Routes */}
+<Route
+  path="/admin"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <AdminDashboard />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/users"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <ManageUsers />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/users/:id"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <UserDetails />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/users/:id/balance"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <AdjustBalance />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/requests"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <ManageRequests />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/categories"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <ManageCategories />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/credits"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <CreditSettings />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/account"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <AdminAccount />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/messages"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <Messages />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/admin/notifications"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminLayout>
+        <Notifications />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+
     </Routes>
     </UserProvider>
   );

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useAdmin } from "../../context/AdminContext";
+import { useApp } from "../../context/AppContext";
 export default function AdjustBalance() {
   const { id } = useParams();
-  const { users, updateUser } = useAdmin();
-  const user = users.find((u) => u.id === Number(id));
+const { getUser, adjustBalance } = useApp();
+const user = getUser(Number(id));
   const [type, setType] = useState("add");
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
@@ -15,22 +15,34 @@ export default function AdjustBalance() {
     const n = Number(amount);
     if (!Number.isInteger(n) || n <= 0)
       return setMessage("Enter a positive whole number.");
-    if (type === "deduct" && n > user.credits)
-      return setMessage("Insufficient credits.");
-    if (!reason.trim()) return setMessage("Please provide a reason.");
-    updateUser(id, { credits: user.credits + (type === "add" ? n : -n) });
-    setAmount("");
-    setReason("");
-    setMessage("Balance updated successfully.");
+
+if (!reason.trim()) {
+  return setMessage("Please provide a reason.");
+}
+
+const result = adjustBalance(
+  user.id,
+  type === "add" ? n : -n,
+  reason.trim()
+);
+
+if (!result.ok) {
+  return setMessage(result.error);
+}
+
+setAmount("");
+setReason("");
+setMessage(result.message);
+
   }
   return (
     <div className="mx-auto max-w-2xl">
-      <Link to={`/admin/users/${id}`} className="text-[#633725]">
+      <Link to={`/admin/users/${id}`} className="text-brand">
         ← Back to user
       </Link>
       <div className="mt-5 rounded-xl border border-stone-300 bg-white p-6">
         <h1 className="text-center text-3xl font-bold">Adjust Balance</h1>
-        <p className="mb-6 text-center text-[#945338]">
+        <p className="mb-6 text-center text-stone-600">
           {user.name} · Current balance: {user.credits} credits
         </p>
         <form onSubmit={save} className="space-y-5">
@@ -42,7 +54,7 @@ export default function AdjustBalance() {
                   type="button"
                   key={v}
                   onClick={() => setType(v)}
-                  className={`rounded-full px-5 py-3 ${type === v ? "bg-[#633725] text-white" : "bg-stone-200"}`}
+                  className={`rounded-full px-5 py-3 ${type === v ? "bg-brand text-white" : "bg-stone-200"}`}
                 >
                   {v === "add" ? "Add" : "Deduct"}
                 </button>
@@ -73,7 +85,7 @@ export default function AdjustBalance() {
             />
           </label>
           {message && (
-            <p role="status" className="text-[#945338]">
+            <p role="status" className="text-stone-600">
               {message}
             </p>
           )}
@@ -84,7 +96,7 @@ export default function AdjustBalance() {
             >
               Cancel
             </Link>
-            <button className="rounded-full bg-[#633725] px-8 py-2 text-white">
+            <button className="rounded-full bg-brand px-8 py-2 text-white">
               Save
             </button>
           </div>

@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useAdmin } from "../../context/AdminContext";
+import { useApp } from "../../context/AppContext";
 import StatsCard from "../../components/admin/StatsCard";
-import ConfirmModal from "../../components/admin/ConfirmModal";
+import ConfirmModal from "../../components/common/ConfirmModal";
 export default function UserDetails() {
   const { id } = useParams();
-  const { users, updateUser } = useAdmin();
-  const [confirm, setConfirm] = useState(false);
-  const user = users.find((u) => u.id === Number(id));
+const { getUser, services, setUserStatus } = useApp();
+
+const [confirm, setConfirm] = useState(false);
+
+const user = getUser(Number(id));
+
+const activeServices = services.filter(
+  (s) => s.providerId === user?.id && s.status === "Active"
+).length;
   if (!user)
     return (
       <p>
@@ -16,20 +22,20 @@ export default function UserDetails() {
     );
   return (
     <>
-      <Link to="/admin/users" className="text-[#633725]">
+      <Link to="/admin/users" className="text-brand">
         ← Back to users
       </Link>
       <h1 className="my-5 text-3xl font-bold">{user.name}</h1>
       <div className="grid gap-4 sm:grid-cols-3">
         <StatsCard label="Credits" value={user.credits} />
-        <StatsCard label="Services" value={`${user.services} Active`} />
+       <StatsCard label="Services" value={`${activeServices} Active`} />
         <StatsCard label="Status" value={user.status} />
       </div>
-      <section className="my-6 rounded-xl border border-stone-300 bg-[#fbf5f1] p-5">
+      <section className="my-6 rounded-xl border border-stone-300 bg-cream p-5">
         <h2 className="mb-3 font-bold">User Information</h2>
         <p>Email: {user.email}</p>
         <p>Joined: {user.joined}</p>
-        <p>Skills: {user.skills}</p>
+        <p>Skills: {user.skills?.join(", ") || "None"}</p>
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-300 p-4">
         <strong>Current Balance: {user.credits} credits</strong>
@@ -41,7 +47,8 @@ export default function UserDetails() {
             {user.status === "Active" ? "Suspend Account" : "Activate Account"}
           </button>
           <Link
-            className="rounded-lg bg-[#633725] px-4 py-2 text-white"
+            className="rounded-lg bg-brand
+             px-4 py-2 text-white"
             to={`/admin/users/${id}/balance`}
           >
             Adjust Balance
@@ -53,12 +60,13 @@ export default function UserDetails() {
           title="Confirm Account Status"
           message={`Are you sure you want to ${user.status === "Active" ? "suspend" : "activate"} ${user.name}?`}
           onCancel={() => setConfirm(false)}
-          onConfirm={() => {
-            updateUser(id, {
-              status: user.status === "Active" ? "Suspended" : "Active",
-            });
-            setConfirm(false);
-          }}
+      onConfirm={() => {
+  setUserStatus(
+    user.id,
+    user.status === "Active" ? "Suspended" : "Active"
+  );
+  setConfirm(false);
+}}
         />
       )}
     </>
