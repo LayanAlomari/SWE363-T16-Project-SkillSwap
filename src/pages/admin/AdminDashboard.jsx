@@ -5,7 +5,7 @@ import StatsCard from "../../components/admin/StatsCard";
 import { useApp } from "../../context/AppContext";
 
 export default function AdminDashboard() {
-  const { users, services, requests } = useApp();
+  const { users, services, requests, settings } = useApp();
   const navigate = useNavigate();
 
   const totalUsers = users.filter(
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
           </p>
 
           <p className="my-5 rounded-lg bg-brand-light p-3 text-center font-bold text-brand">
-            1 Hour = 1 Time Credit
+            1 Hour = {settings.creditsPerHour} Time {settings.creditsPerHour === 1 ? "Credit" : "Credits"}
           </p>
 
           <Link
