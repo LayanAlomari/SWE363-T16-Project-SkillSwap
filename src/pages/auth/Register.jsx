@@ -4,13 +4,13 @@ import { useState } from "react";
 import FormInput from "../../components/auth/FormInput";
 import Checkbox from "../../components/auth/Checkbox";
 import SuccessBox from "../../components/auth/SuccessBox";
-import { findUserByEmail, INITIAL_CREDITS } from "../../data/mockUsers";
+import { findUserByEmail } from "../../data/mockUsers";
 import { useApp } from "../../context/AppContext";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Register() {
-  const { registerUser } = useApp();
+  const { registerUser, settings } = useApp();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,7 +59,7 @@ setCreated(true);
       <AuthLayout>
         <SuccessBox
           title="Account Created Successfully!"
-          message={`You have received ${INITIAL_CREDITS} Time Credits. You can now log in to your account...`}
+          message={`You have received ${settings.welcomeCredits} Time Credits. You can now log in to your account...`}
         />
         <div className="mx-auto mt-6 max-w-[720px]">
           <Link to="/login" className="block rounded-full bg-[#533222] py-3 text-center text-xl font-bold text-white hover:bg-[#3f2519]">
