@@ -170,6 +170,7 @@ export default function ManageCategories() {
           confirmLabel="Delete"
           onCancel={() => setDeleting(null)}
           onConfirm={handleDelete}
+          danger={true}
         />
       )}
     </>
