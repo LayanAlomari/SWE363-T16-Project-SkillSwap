@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // Authentication pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import { useApp } from "./context/AppContext";
 
 // User pages
 import Home from "./pages/user/Home";
@@ -34,17 +35,32 @@ import AdminAccount from "./pages/admin/AdminAccount";
 
 
 export default function App() {
+  const { currentUser } = useApp(); 
   return (
     <UserProvider>
       <Routes>
 
       {/* Public pages */}
-     <Route path="/" element={<Home />} />
+     <Route
+ 
+
+  path="/"
+  element={
+    currentUser?.role === "admin" ? (
+      <Navigate to="/admin" replace />
+    ) : currentUser?.role === "user" ? (
+      <Navigate to="/dashboard" replace />
+    ) : (
+      <Home />
+    )
+  }
+
+
+/>
      <Route path="/browse" element={<Browse />} />
      <Route path="/how-it-works" element={<HowItWorks />} />
      <Route path="/services/:id" element={<ServiceDetails />} />
-      {/* "/" redirects to Login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+  
 
       {/* Authentication */}
       <Route path="/login" element={<Login />} />
