@@ -35,7 +35,7 @@ const users = allUsers.filter((user) => user.role !== "admin");
       </div>
       <div className="overflow-x-auto rounded-xl border border-stone-300">
         <table className="w-full min-w-[600px] text-left">
-          <thead className="bg-[#633725] text-white">
+          <thead className="bg-brandtext-white">
             <tr>
               {["Name", "Email", "Status", "Credits", "Action"].map((x) => (
                 <th className="p-3" key={x}>
@@ -46,7 +46,7 @@ const users = allUsers.filter((user) => user.role !== "admin");
           </thead>
           <tbody>
             {visible.map((u) => (
-              <tr key={u.id} className="border-t bg-[#fbf5f1]">
+              <tr key={u.id} className="border-t bg-cream">
                 <td className="p-3">{u.name}</td>
                 <td className="p-3">{u.email}</td>
                 <td className="p-3">
@@ -59,7 +59,7 @@ const users = allUsers.filter((user) => user.role !== "admin");
                 <td className="p-3">{u.credits}</td>
                 <td className="p-3">
                   <Link
-                    className="rounded-lg bg-[#633725] px-4 py-2 text-white"
+                    className="rounded-lg bg-brand px-4 py-2 text-white"
                     to={`/admin/users/${u.id}`}
                   >
                     View

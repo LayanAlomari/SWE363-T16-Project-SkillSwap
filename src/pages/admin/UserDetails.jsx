@@ -22,7 +22,7 @@ const activeServices = services.filter(
     );
   return (
     <>
-      <Link to="/admin/users" className="text-[#633725]">
+      <Link to="/admin/users" className="text-brand">
         ← Back to users
       </Link>
       <h1 className="my-5 text-3xl font-bold">{user.name}</h1>
@@ -31,7 +31,7 @@ const activeServices = services.filter(
        <StatsCard label="Services" value={`${activeServices} Active`} />
         <StatsCard label="Status" value={user.status} />
       </div>
-      <section className="my-6 rounded-xl border border-stone-300 bg-[#fbf5f1] p-5">
+      <section className="my-6 rounded-xl border border-stone-300 bg-cream p-5">
         <h2 className="mb-3 font-bold">User Information</h2>
         <p>Email: {user.email}</p>
         <p>Joined: {user.joined}</p>
@@ -47,7 +47,8 @@ const activeServices = services.filter(
             {user.status === "Active" ? "Suspend Account" : "Activate Account"}
           </button>
           <Link
-            className="rounded-lg bg-[#633725] px-4 py-2 text-white"
+            className="rounded-lg bg-brand
+             px-4 py-2 text-white"
             to={`/admin/users/${id}/balance`}
           >
             Adjust Balance
