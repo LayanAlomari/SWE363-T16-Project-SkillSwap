@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CalendarDays, Coins, Info, Check, X, Star, CheckCheck, MessageCircle } from "lucide-react";
+import { CalendarDays, Coins, Info, Check, X, Star, CheckCheck, MessageCircle, Video, MapPin } from "lucide-react";
 import StatusBadge from "../common/StatusBadge";
 import { useApp, AWAITING, confirmDeadline } from "../../context/AppContext";
 
@@ -42,6 +42,9 @@ export default function RequestCard({ request: r, view, onAccept, onReject, onCa
   };
 
   const canMessage = ["Pending", "Accepted", AWAITING].includes(r.status);
+  // The meeting link and place are only needed while the session is still coming up
+  const showPlace = canMessage;
+  const safeLink = /^https?:\/\//i.test(r.meetingLink ?? "") ? r.meetingLink : "";
   const primary = "flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark";
   const danger = "flex items-center gap-2 rounded-lg border-2 border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50";
 
@@ -61,6 +64,25 @@ export default function RequestCard({ request: r, view, onAccept, onReject, onCa
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-700">
         <span className="flex items-center gap-1"><CalendarDays size={15} className="text-brand" /> {r.sessionTime}</span>
         <span className="flex items-center gap-1"><Coins size={15} className="text-brand" /> {credits}</span>
+        {r.sessionType === "Online" && (
+          <span className="flex items-center gap-1">
+            <Video size={15} className="text-brand" /> Online
+            {showPlace && safeLink && (
+              <>
+                {" · "}
+                <a href={safeLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand underline underline-offset-2 hover:no-underline">
+                  Meeting link
+                </a>
+              </>
+            )}
+          </span>
+        )}
+        {r.sessionType === "In-person" && (
+          <span className="flex min-w-0 items-center gap-1">
+            <MapPin size={15} className="shrink-0 text-brand" /> In person
+            {showPlace && r.location && <span className="break-words">{` · ${r.location}`}</span>}
+          </span>
+        )}
       </div>
 
       {!received && r.status === AWAITING ? (

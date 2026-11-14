@@ -8,9 +8,9 @@ const HOURS = [1, 2, 3, 4, 5, 6, 7, 8].map((h) => ({ value: h, label: `${h} ${h 
 const MAX_DESCRIPTION = 300;
 
 // Pop-up form to add or edit a service.
-// Credits are calculated from the duration (1 hour = 1 Time Credit).
+// Credits are calculated from the duration and the credits per hour.
 export default function ServiceForm({ service, onSave, onCancel }) {
-  const { categories } = useApp();
+  const { categories, settings } = useApp();
   const [form, setForm] = useState({
     title: service?.title ?? "",
     category: service?.category ?? "",
@@ -61,6 +61,7 @@ export default function ServiceForm({ service, onSave, onCancel }) {
   }
 
   const hours = Number(form.durationHours);
+  const price = hours * settings.creditsPerHour;
   const inputStyle = (field) =>
     `w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand ${
       errors[field] ? "border-red-500" : "border-stone-300"
@@ -137,8 +138,8 @@ export default function ServiceForm({ service, onSave, onCancel }) {
           </div>
 
           <p className="rounded-lg bg-cream px-3 py-2 text-sm text-stone-700">
-            Price: <span className="font-bold text-brand">{hours} Time {hours === 1 ? "Credit" : "Credits"}</span>
-            <span className="text-stone-500"> (1 hour = 1 credit)</span>
+            Price: <span className="font-bold text-brand">{price} Time {price === 1 ? "Credit" : "Credits"}</span>
+            <span className="text-stone-500"> (1 hour = {settings.creditsPerHour} {settings.creditsPerHour === 1 ? "credit" : "credits"})</span>
           </p>
 
           <div>
